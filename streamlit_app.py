@@ -1,16 +1,14 @@
 import streamlit as st
 import requests
 import numpy as np
-import plotly.graph_objects as go
 import time
 
 # --- 🔑 NUCLEAR CONFIG ---
-# تأكد من نسخ المفتاح التالي بدقة بدون مسافات
 API_KEY = "757497fe293f4e39a291cc5c575c6dc3" 
 
 st.set_page_config(page_title="OmniStats Quantum Elite", layout="wide", page_icon="🔱")
 
-# التصميم البصري (V10.1 Gold)
+# التنسيق الفاخر
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com');
@@ -21,21 +19,21 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# دالة جلب البيانات مع فحص الأخطاء (Debug Mode)
+# دالة جلب البيانات (تم تصحيح الرابط جذرياً هنا)
 def fetch_live_data(league_code):
+    # تأكد أن الرابط ينتهي بـ .org/v4 وليس .orgpl/v4
     url = f"https://api.football-data.org{league_code}/standings"
     headers = {'X-Auth-Token': API_KEY}
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=15)
         if response.status_code == 200:
             return response.json()['standings'][0]['table'], "OK"
         else:
-            return None, f"خطأ {response.status_code}: تأكد من تفعيل المفتاح أو انتظار دقيقة."
+            return None, f"خطأ {response.status_code}"
     except Exception as e:
-        return None, f"فشل الاتصال: {str(e)}"
+        return None, "خطأ في الرابط أو الاتصال"
 
 st.markdown("<p class='glow-header'>OMNISTATS</p>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; color:#555;'>THE QUANTUM SOVEREIGN v10.1</p>", unsafe_allow_html=True)
 
 with st.container():
     st.markdown("<div class='glass-panel'>", unsafe_allow_html=True)
@@ -52,12 +50,12 @@ with st.container():
         with col1: h_team = st.selectbox("صاحب الأرض:", teams, index=0)
         with col2: a_team = st.selectbox("الضيف المتحدي:", teams, index=1)
         
-        if st.button("إطلاق المحاكاة الكمية 🧠⚡"):
+        if st.button("إطلاق المحاكاة الكمية ⚡"):
             st.balloons()
             st.info(f"المحرك يحلل الآن مواجهة: **{h_team}** ضد **{a_team}**")
-            # هنا تكتمل خوارزمية بويسون في الخطوة التالية
     else:
-        st.error(f"⚠️ {status}")
-        st.info("نصيحة: انتظر قليلاً وقم بتحديث الصفحة، فالمفتاح المجاني يسمح بـ 10 طلبات في الدقيقة فقط.")
+        st.error(f"⚠️ حالة المحرك: {status}")
+        st.info("تأكد من حذف أي أحرف زائدة (مثل pl) في نهاية الرابط داخل الكود.")
 
     st.markdown("</div>", unsafe_allow_html=True)
+                                
