@@ -1,130 +1,120 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
-import pandas as pd
+from scipy.stats import poisson
 import time
 
-# 1. إعدادات الهوية البصرية الفائقة (The Supreme Aesthetic)
-st.set_page_config(page_title="OmniStats Sovereign Supreme", layout="wide", page_icon="🔱")
+# 1. إعدادات المنصة الاحترافية (Pro Analysis UI)
+st.set_page_config(page_title="OmniStats Pro | Sovereign Intelligence", layout="wide", page_icon="🔱")
 
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com');
+    @import url('https://googleapis.com');
     
-    .stApp { background: radial-gradient(circle at top, #1a1a1a 0%, #000 100%); color: #D4AF37; font-family: 'Cairo', sans-serif; }
+    .stApp { background: #000; color: #D4AF37; font-family: 'Cairo', sans-serif; }
     
-    /* لوحة التحكم الزجاجية الفائقة */
-    .supreme-panel {
-        background: rgba(255, 255, 255, 0.015);
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        border-radius: 40px;
-        padding: 50px;
-        backdrop-filter: blur(40px);
-        box-shadow: 0 0 100px rgba(212, 175, 55, 0.1);
+    /* لوحة التحكم الاحترافية */
+    .pro-panel {
+        background: rgba(20, 20, 20, 0.9);
+        border: 1px solid #D4AF37;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 0 50px rgba(212, 175, 55, 0.1);
     }
     
-    .glow-header { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; text-align: center; color: #D4AF37; text-shadow: 0 0 30px #D4AF37; margin-bottom: 5px; }
+    .glow-header { font-family: 'Orbitron', sans-serif; font-size: 2.8rem; text-align: center; color: #D4AF37; margin: 0; }
     
-    /* زر الإطلاق الأسطوري */
+    /* زر التحليل العميق */
     .stButton>button {
-        background: linear-gradient(135deg, #D4AF37 0%, #F2D388 50%, #D4AF37 100%);
-        color: #000 !important; font-weight: 900; border-radius: 100px;
-        height: 80px; border: none; font-size: 1.8rem; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        width: 100%; box-shadow: 0 15px 50px rgba(212, 175, 55, 0.4);
+        background: #D4AF37;
+        color: #000 !important; font-weight: 900; border-radius: 5px;
+        height: 70px; border: none; font-size: 1.5rem; transition: 0.3s;
+        width: 100%; text-transform: uppercase;
     }
-    .stButton>button:hover { transform: scale(1.03) translateY(-8px); box-shadow: 0 25px 80px rgba(212, 175, 55, 0.7); }
+    .stButton>button:hover { background: #F2D388; box-shadow: 0 0 30px #D4AF37; }
     
-    .xg-indicator { background: rgba(212, 175, 55, 0.1); border-radius: 20px; padding: 15px; border-left: 8px solid #D4AF37; margin: 15px 0; }
+    .input-box { background: #111; border-radius: 10px; padding: 20px; border: 1px solid #333; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. محرك الذكاء الاصطناعي لحساب xG المتقدم
-def calculate_supreme_xg(shots, big_chances, possession, pressure_level):
-    # خوارزمية هجينة تعتمد على كثافة الهجوم والضغط العالي
-    # xG = (التسديدات * 0.15) + (الكرات الكبرى * 0.5) + (الاستحواذ * 0.01) + (مستوى الضغط * 0.1)
-    xg = (shots * 0.12) + (big_chances * 0.55) + (possession * 0.008) + (pressure_level * 0.15)
-    return round(max(0.1, xg), 2)
+# 2. الخوارزمية السيادية (The Sovereign Mathematical Engine)
+def calculate_probabilities(home_exp_goals, away_exp_goals):
+    # مصفوفة احتمالات الأهداف (من 0 إلى 8 لكل فريق)
+    home_probs = [poisson.pmf(i, home_exp_goals) for i in range(9)]
+    away_probs = [poisson.pmf(i, away_exp_goals) for i in range(9)]
+    
+    # حساب مصفوفة الاحتمالات المتقاطعة
+    m = np.outer(home_probs, away_probs)
+    
+    win_h = np.sum(np.tril(m, -1)) * 100
+    draw = np.sum(np.diag(m)) * 100
+    win_a = np.sum(np.triu(m, 1)) * 100
+    
+    # استخراج النتائج الـ 3 الأكثر احتمالية
+    flat_m = m.flatten()
+    top_3_indices = np.argsort(flat_m)[-3:][::-1]
+    top_scores = []
+    for idx in top_3_indices:
+        h, a = divmod(idx, 9)
+        top_scores.append((f"{h} - {a}", round(flat_m[idx] * 100, 1)))
+        
+    return win_h, draw, win_a, top_scores
 
-# 3. محاكي مونت كارلو الفائق (100,000 سيناريو)
-def run_supreme_simulation(h_xg, a_xg):
-    sims = 100000 # أقصى دقة حسابية ممكنة
-    h_goals = np.random.poisson(h_xg, sims)
-    a_goals = np.random.poisson(a_xg, sims)
-    
-    h_win = (h_goals > a_goals).mean() * 100
-    draw = (h_goals == a_goals).mean() * 100
-    a_win = (a_goals > h_goals).mean() * 100
-    
-    # تحديد النتائج الأكثر تكراراً (الخارطة الحرارية للأهداف)
-    scores = list(zip(h_goals, a_goals))
-    top_score = max(set(scores), key=scores.count)
-    
-    return h_win, draw, a_win, top_score
-
-# 4. بناء مسرح العمليات (The UI)
-st.markdown("<p class='glow-header'>OMNISTATS SUPREME</p>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; letter-spacing:20px; color:#555;'>BEYOND ANALYTICS v17.0</p>", unsafe_allow_html=True)
+# 3. واجهة المستخدم (The Pro Dashboard)
+st.markdown("<p class='glow-header'>OMNISTATS PRO</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:#555; letter-spacing:5px;'>ADVANCED ANALYTICS ENGINE</p>", unsafe_allow_html=True)
 
 with st.container():
-    st.markdown("<div class='supreme-panel'>", unsafe_allow_html=True)
+    st.markdown("<div class='pro-panel'>", unsafe_allow_html=True)
     
     col_l, col_r = st.columns(2, gap="large")
     
     with col_l:
-        st.markdown("### 🏟️ بيانات المضيف (Home)")
-        h_name = st.text_input("اسم الفريق:", "أرسنال", key="h_n")
-        h_s = st.slider("إجمالي التسديدات:", 0, 35, 14, key="h_s")
-        h_bc = st.slider("فرص محققة للتسجيل (Big Chances):", 0, 10, 3, key="h_bc")
-        h_pos = st.slider("الاستحواذ (%):", 20, 80, 60, key="h_p")
-        h_pres = st.select_slider("مستوى الضغط الهجومي:", options=[1, 2, 3, 4, 5], value=4, key="h_pr")
-        
-        h_xg = calculate_supreme_xg(h_s, h_bc, h_pos, h_pres)
-        st.markdown(f"<div class='xg-indicator'>Expected Goals (xG): <b style='font-size:24px;'>{h_xg}</b></div>", unsafe_allow_html=True)
+        st.markdown("<div class='input-box'>", unsafe_allow_html=True)
+        h_name = st.text_input("الفريق المضيف (HOME):", "النادي الإفريقي")
+        h_att = st.number_input(f"قوة الهجوم لـ {h_name} (xG):", 0.1, 5.0, 1.8, step=0.1)
+        h_def = st.number_input(f"صلابة الدفاع لـ {h_name} (0=ضعيف، 5=حديد):", 0.0, 5.0, 1.2, step=0.1)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col_r:
-        st.markdown("### ✈️ بيانات الضيف (Away)")
-        a_name = st.text_input("اسم الفريق:", "مانشستر سيتي", key="a_n")
-        a_s = st.slider("إجمالي التسديدات:", 0, 35, 12, key="a_s")
-        a_bc = st.slider("فرص محققة للتسجيل (Big Chances):", 0, 10, 2, key="a_bc")
-        a_pos = st.slider("الاستحواذ (%):", 20, 80, 40, key="a_p")
-        a_pres = st.select_slider("مستوى الضغط الهجومي:", options=[1, 2, 3, 4, 5], value=3, key="a_pr")
-        
-        a_xg = calculate_supreme_xg(a_s, a_bc, a_pos, a_pres)
-        st.markdown(f"<div class='xg-indicator'>Expected Goals (xG): <b style='font-size:24px;'>{a_xg}</b></div>", unsafe_allow_html=True)
+        st.markdown("<div class='input-box'>", unsafe_allow_html=True)
+        a_name = st.text_input("الفريق الضيف (AWAY):", "النادي البنزرتي")
+        a_att = st.number_input(f"قوة الهجوم لـ {a_name} (xG):", 0.1, 5.0, 1.2, step=0.1)
+        a_def = st.number_input(f"صلابة الدفاع لـ {a_name} (0=ضعيف، 5=حديد):", 0.0, 5.0, 1.5, step=0.1)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     st.write("<br>", unsafe_allow_html=True)
     
-    if st.button("إطلاق المحاكاة السيادية العليا 🧠🔥"):
-        with st.spinner('يتم الآن معالجة 100,000 سيناريو عبر المحرك العصبي...'):
-            time.sleep(2)
-            hw, dr, aw, score = run_supreme_simulation(h_xg, a_xg)
+    if st.button("تفعيل المحاكاة السيادية الاحترافية ⚡"):
+        with st.spinner('جارِ تحليل المعطيات وحساب احتمالات بويسون...'):
+            time.sleep(1.5)
+            # تعديل معدل الأهداف بناءً على قوة دفاع الخصم
+            h_final_xg = h_att * (1 - (a_def * 0.1))
+            a_final_xg = a_att * (1 - (h_def * 0.1))
             
-            st.markdown("<hr style='opacity:0.1; margin:40px 0;'>", unsafe_allow_html=True)
+            wh, d, wa, scores = calculate_probabilities(h_final_xg, a_final_xg)
             
-            # عرض النتائج الكونية
-            res1, res2, res3 = st.columns(3)
-            res1.metric(f"احتمال فوز {h_name}", f"{round(hw, 1)}%")
-            res2.metric("احتمال التعادل", f"{round(dr, 1)}%")
-            res3.metric(f"احتمال فوز {a_name}", f"{round(aw, 1)}%")
+            # عرض النتائج الاستراتيجية
+            st.markdown("<hr style='border-color:#333;'>", unsafe_allow_html=True)
+            c1, c2, c3 = st.columns(3)
+            c1.metric(f"فوز {h_name}", f"{round(wh, 1)}%")
+            c2.metric("احتمال التعادل", f"{round(d, 1)}%")
+            c3.metric(f"فوز {a_name}", f"{round(wa, 1)}%")
             
-            st.markdown(f"""
-                <div style='text-align:center; padding:40px; border:2px solid #D4AF37; border-radius:100px; margin:40px 0; background:rgba(212,175,55,0.05);'>
-                    <p style='color:#888; margin:0; text-transform:uppercase; letter-spacing:5px;'>النتيجة المنطقية العليا</p>
-                    <h1 style='font-size:5rem; color:white; margin:10px 0;'>{score[0]} - {score[1]}</h1>
-                    <p style='color:#D4AF37; font-weight:bold;'>دقة المحاكاة: 99.9% (Quantum Analysis)</p>
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown("### 🎯 النتائج الأكثر توقعاً (Exact Score)")
+            s1, s2, s3 = st.columns(3)
+            s1.info(f"النتيجة: **{scores[0][0]}** (احتمال: {scores[0][1]}%)")
+            s2.info(f"النتيجة: **{scores[1][0]}** (احتمال: {scores[1][1]}%)")
+            s3.info(f"النتيجة: **{scores[2][0]}** (احتمال: {scores[2][1]}%)")
             
-            # رادار المقارنة النهائية
-            fig = go.Figure()
-            fig.add_trace(go.Scatterpolar(r=[h_xg*20, h_s*2, h_bc*10, h_pres*20], theta=['xG','Shots','Big Chances','Pressure'], fill='toself', name=h_name, line_color='#D4AF37'))
-            fig.add_trace(go.Scatterpolar(r=[a_xg*20, a_s*2, a_bc*10, a_pres*20], theta=['xG','Shots','Big Chances','Pressure'], fill='toself', name=a_name, line_color='#fff'))
-            fig.update_layout(polar=dict(bgcolor="rgba(0,0,0,0)", radialaxis=dict(visible=False)), paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#D4AF37", size=14))
+            # مقارنة بصرية احترافية
+            fig = go.Figure(data=[
+                go.Bar(name=h_name, x=['الهجوم', 'الدفاع'], y=[h_att, h_def], marker_color='#D4AF37'),
+                go.Bar(name=a_name, x=['الهجوم', 'الدفاع'], y=[a_att, a_def], marker_color='#fff')
+            ])
+            fig.update_layout(barmode='group', template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig, use_container_width=True)
             
-            st.balloons()
-
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("<p style='text-align:center; color:#222; margin-top:100px; font-family:Orbitron;'>OMNISTATS | SUPREME FINAL BUILD | MARCH 2026</p>", unsafe_allow_html=True)
-    
+st.markdown("<p style='text-align:center; color:#222; margin-top:50px;'>OMNISTATS | PROFESSIONAL SOVEREIGN ENGINE | v18.0</p>", unsafe_allow_html=True)
