@@ -1,9 +1,24 @@
 import streamlit as st
 import numpy as np
+import requests
 import time
 
-# --- 🔱 AURASTATS ARABIC PRO: GULF & ARAB GRAND EXPANSION v900.0 ---
+# --- 🔱 AURASTATS ARABIC PRO: LIVE SYNC v950.0 ---
 st.set_page_config(page_title="AuraStats Arabic Pro", layout="wide", page_icon="🔱")
+
+# 👇 ضع مفتاحك هنا (من موقع api-football.com) لتحديث البيانات حياً
+API_KEY = "8abdb813dece636993e2182de4ee374a" 
+
+# --- دالة التحديث الحي (Live Data Sync) ---
+def get_live_empire_data(league_id):
+    headers = {'x-apisports-key': API_KEY}
+    url = "https://api-sports.io"
+    # رصد مباريات اليوم 31 مارس 2026 والمباريات الـ 10 القادمة
+    params = {'league': league_id, 'season': 2025, 'next': 10}
+    try:
+        res = requests.get(url, headers=headers, params=params, timeout=10).json()
+        return res.get('response', [])
+    except: return []
 
 # --- CSS الهوية الإمبراطورية الفائقة ---
 st.markdown("""
@@ -18,76 +33,71 @@ st.markdown("""
 
 st.markdown("<h1 style='text-align:center; color:#D4AF37; font-size:3.8rem; margin-bottom:0;'>ARABIC PRO 🏆</h1>", unsafe_allow_html=True)
 
-# 🌍 المصفوفة العربية والخليجية الكبرى (محدثة 2026)
-all_arabic_leagues = {
-    "🇶🇦 دوري نجوم قطر": ["السد vs الدحيل", "الريان vs الغرافة", "العربي vs الوكرة"],
-    "🇴🇲 دوري عمانتل": ["السيب vs ظفار", "النهضة vs النصر العماني", "صحار vs الرستاق"],
-    "🇸🇦 دوري روشن السعودي": ["الهلال vs النصر", "الاتحاد vs الأهلي السعودي"],
-    "🇦🇪 الدوري الإماراتي": ["العين vs الوصل", "شباب الأهلي vs الشارقة"],
-    "🇰🇼 الدوري الكويتي": ["القادسية vs العربي", "الكويت vs كاظمة"],
-    "🇹🇳 الدوري التونسي الممتاز": ["الترجي الرياضي vs النادي الإفريقي", "النجم الساحلي vs النادي الصفاقسي"],
-    "🇪🇬 الدوري المصري الممتاز": ["الأهلي vs الزمالك", "بيراميدز vs فيوتشر"],
-    "🇲🇦 الدوري المغربي (البطولة)": ["الوداد vs الرجاء", "الجيش الملكي vs نهضة بركان"],
-    "🇩🇿 الدوري الجزائري": ["مولودية الجزائر vs شباب بلوزداد", "اتحاد العاصمة vs شبيبة القبائل"],
-    "🇮🇶 الدوري العراقي": ["الزوراء vs القوة الجوية", "الشرطة vs الطلبة"],
-    "🇱🇾 الدوري الليبي": ["الأهلي طرابلس vs الاتحاد", "الأهلي بنغازي vs النصر"],
-    "🇯🇴 الدوري الأردني": ["الفيصلي vs الوحدات"],
-    "🇸🇩 الدوري السوداني": ["الهلال vs المريخ"]
+# 🌍 مصفوفة الدوريات العربية والخليجية (مع الرموز البرمجية للـ API)
+leagues_api = {
+    "🇹🇳 الدوري التونسي الممتاز": 202,
+    "🇪🇬 الدوري المصري الممتاز": 233,
+    "🇸🇦 دوري روشن السعودي": 307,
+    "🇶🇦 دوري نجوم قطر": 305,
+    "🇲🇦 الدوري المغربي": 200,
+    "🇦🇪 الدوري الإماراتي": 301,
+    "🇩🇿 الدوري الجزائري": 194,
+    "🇴🇲 دوري عمانتل": 313,
+    "🌍 دوري أبطال أفريقيا": 12
 }
 
-# 🧠 قاعدة بيانات النجوم المحدثة لقطر وعمان
-players_db = {
-    "السد": ["أكرم عفيف", "حسن الهيدوس"], "الدحيل": ["المعز علي", "مايكل أولونغا"],
-    "الريان": ["روجر غيديس"], "الغرافة": ["ياسين براهيمي"],
-    "السيب": ["صلاح اليحيائي", "عبد العزيز المقبالي"], "ظفار": ["قاسم سعيد"],
-    "النهضة": ["حارب السعدي"]
-}
+sel_league_name = st.selectbox("🎯 اختر البطولة المراد تحديث بياناتها حياً:", list(leagues_api.keys()))
+league_id = leagues_api[sel_league_name]
 
-sel_league = st.selectbox("🎯 اختر البطولة العربية/الخليجية:", list(all_arabic_leagues.keys()))
-sel_match = st.selectbox("المواجهات المرصودة:", all_arabic_leagues[sel_league])
-
-h_name, a_name = sel_match.split(" vs ")
+# --- عملية التحديث التلقائي ---
+with st.spinner('📡 جاري رصد الملاعب وتحديث البيانات اللحظية لعام 2026...'):
+    live_matches = get_live_empire_data(league_id)
 
 st.markdown("<div class='main-panel'>", unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
-h_xg = col1.slider(f"قوة {h_name} (xG):", 0.1, 5.0, 1.85)
-a_xg = col2.slider(f"قوة {a_name} (xG):", 0.1, 5.0, 1.48)
+if live_matches:
+    # عرض المباريات الحقيقية المحدثة
+    match_options = {f"{m['teams']['home']['name']} vs {m['teams']['away']['name']}": m for m in live_matches}
+    selected_match_label = st.selectbox("المباريات الحقيقية المرصودة (Live):", list(match_options.keys()))
+    
+    m_data = match_options[selected_match_label]
+    h_name = m_data['teams']['home']['name']
+    a_name = m_data['teams']['away']['name']
+    h_logo = m_data['teams']['home']['logo']
+    a_logo = m_data['teams']['away']['logo']
+    
+    st.success(f"✅ تم تحديث بيانات {sel_league_name} بنجاح!")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.image(h_logo, width=80)
+        h_xg = st.slider(f"قوة {h_name}:", 0.5, 5.0, 2.10)
+    with col2:
+        st.image(a_logo, width=80)
+        a_xg = st.slider(f"قوة {a_name}:", 0.5, 5.0, 1.45)
 
-if st.button("🚀 إطلاق المحاكاة السيادية الشاملة"):
-    with st.spinner('🎯 رصد التاريخ الكروي للخليج والوطن العربي...'):
-        time.sleep(1.5)
-        h_sim = np.random.poisson(h_xg, 100000)
-        a_sim = np.random.poisson(a_xg, 100000)
-        
-        score_h, score_a = int(np.mean(h_sim)), int(np.mean(a_sim))
-        corners = int((h_xg + a_xg) * 3.8)
-        win_p = (h_sim > a_sim).mean() * 100
-        cards = int(((h_xg + a_xg) / 2) * 2.5) + np.random.randint(1, 4)
-        possession = int(50 + (h_xg - a_xg) * 10)
-        
-        # اختيار رجل المباراة من قاعدة النجوم المحدثة
-        all_stars = players_db.get(h_name, ["نجم المباراة"]) + players_db.get(a_name, ["نجم المباراة"])
-        man_of_match = np.random.choice(all_stars)
+    if st.button("🚀 إطلاق المحاكاة السيادية الحقيقية"):
+        with st.spinner('🎯 تحليل 100,000 سيناريو احتمالي...'):
+            h_sim = np.random.poisson(h_xg, 100000)
+            a_sim = np.random.poisson(a_xg, 100000)
+            score_h, score_a = int(np.mean(h_sim)), int(np.mean(a_sim))
+            corners = int((h_xg + a_xg) * 3.8)
+            win_p = (h_sim > a_sim).mean() * 100
 
-        st.markdown(f"""
-            <div style='margin-top:10px;'>
-                <p style='color:#D4AF37; margin:0; font-size:1.3rem;'>النتيجة الأكثر توقعاً</p>
-                <h1 class='score-display'>{score_h} - {score_a}</h1>
-                <h3 style='color:white; font-size:2rem;'>{h_name} vs {a_name}</h3>
-                <hr style='border:1px solid #D4AF37; opacity:0.3; margin:30px 0;'>
+            st.markdown(f"<h1 class='score-display'>{score_h} - {score_a}</h1>", unsafe_allow_html=True)
+            st.markdown(f"""
                 <div style='display:flex; justify-content:center; flex-wrap:wrap;'>
-                    <div class='stat-badge'><p style='color:#D4AF37; margin:0;'>🚩 ركنيات</p><h2 style='color:white; margin:0;'>{corners}</h2></div>
-                    <div class='stat-badge'><p style='color:#D4AF37; margin:0;'>🟨 بطاقات</p><h2 style='color:white; margin:0;'>{cards}</h2></div>
-                    <div class='stat-badge'><p style='color:#D4AF37; margin:0;'>⚽ استحواذ</p><h2 style='color:white; margin:0;'>{possession}%</h2></div>
+                    <div class='stat-badge'><p>🚩 ركنيات</p><h2>{corners}</h2></div>
+                    <div class='stat-badge'><p>📈 فوز {h_name}</p><h2>{win_p:.1f}%</h2></div>
                 </div>
-                <div style='margin-top:20px; padding:25px; border:2px solid #D4AF37; border-radius:30px; background:rgba(212,175,55,0.15);'>
-                    <p style='color:#D4AF37; margin:0; font-weight:bold;'>⭐ رجل المباراة المتوقع</p>
-                    <h2 style='color:white; margin:10px 0; font-size:2.3rem;'>{man_of_match}</h2>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-        st.balloons()
+            """, unsafe_allow_html=True)
+            st.balloons()
+else:
+    # وضع الطوارئ في حال تعذر الاتصال بالسيرفر
+    st.error("⚠️ السيرفر العالمي لم يرسل بيانات اليوم بعد. استخدم الوضع اليدوي أدناه:")
+    h_manual = st.text_input("المضيف يدوياً:", "الترجي")
+    a_manual = st.text_input("الضيف يدوياً:", "الأهلي")
+    st.info("💡 بمجرد عودة السيرفر للعمل، ستظهر الفرق الحقيقية هنا تلقائياً.")
 
 st.markdown("</div>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; color:#333; margin-top:50px;'>AURASTATS AI | v900.0 GULF & ARAB EDITION</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:#333; margin-top:50px;'>AURASTATS AI | v950.0 LIVE SYNC EDITION</p>", unsafe_allow_html=True)
