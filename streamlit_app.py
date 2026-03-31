@@ -3,21 +3,26 @@ import numpy as np
 import requests
 import time
 
-# --- 🔱 AURASTATS EMPIRE: THE FINAL RECONSTRUCTION v220.0 ---
+# --- 🔱 AURASTATS EMPIRE: THE ABSOLUTE SOLUTION v230.0 ---
 st.set_page_config(page_title="AuraStats Empire", layout="wide", page_icon="🔱")
 
 # 👇 ضع مفتاحك من موقع football-data.org هنا
 API_KEY = "757497fe293f4e39a291cc5c575c6dc3" 
 
-def fetch_empire_data_fixed(league_code):
+def fetch_empire_data_absolute(league_code):
     headers = { 'X-Auth-Token': API_KEY }
     
-    # 🛠️ الإصلاح الجذري: استخدام الرابط الرسمي الكامل (api.) مع فصل المسارات بوضوح
-    # هذا يمنع التصاق الحروف مثل (orgpd) الذي ظهر في صورتك
-    url = f"https://football-data.org{league_code}/matches"
+    # 🛠️ الإصلاح الجوهري: روابط مكتوبة يدوياً بالكامل لمنع أي التصاق (مثل orgpd)
+    if league_code == "PL": url = "https://football-data.org"
+    elif league_code == "PD": url = "https://football-data.org"
+    elif league_code == "BL1": url = "https://football-data.org"
+    elif league_code == "SA": url = "https://football-data.org"
+    elif league_code == "FL1": url = "https://football-data.org"
+    elif league_code == "CL": url = "https://football-data.org"
+    else: return None
     
     try:
-        # طلب المباريات المجدولة القادمة
+        # طلب المباريات القادمة (Scheduled) مع مهلة انتظار طويلة
         params = {'status': 'SCHEDULED'}
         response = requests.get(url, headers=headers, params=params, timeout=20, verify=False)
         
@@ -33,14 +38,13 @@ def fetch_empire_data_fixed(league_code):
             st.error(f"❌ تنبيه من السيرفر: كود {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"❌ فشل الاتصال التقني: {e}")
+        st.error(f"❌ فشل الاتصال التقني: تأكد من صحة الرابط.")
         return None
 
-# --- واجهة القائد مختار المصححة ---
+# --- واجهة الإمبراطور مختار ---
 st.markdown("<h1 style='text-align:center; color:#D4AF37;'>AURASTATS EMPIRE 🏆</h1>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align:center; color:#888;'>تم تصحيح المسارات | النسخة v220.0</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center; color:#888;'>مركز التحكم السيادي | النسخة v230.0</p>", unsafe_allow_html=True)
 
-# معرفات الدوريات المتاحة في خطتك المجانية (مؤكدة)
 leagues = {
     "🇪🇸 الدوري الإسباني": "PD",
     "🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي": "PL",
@@ -52,10 +56,10 @@ leagues = {
 
 sel_league = st.selectbox("🎯 اختر المسرح القتالي:", list(leagues.keys()))
 
-if st.button("📡 فرض الاتصال السيادي المطلق"):
-    with st.spinner('🎯 جاري تنظيف الروابط والعبور للسيرفر...'):
+if st.button("📡 فرض الاتصال السيادي المباشر"):
+    with st.spinner('🎯 جاري فك شفرات السيرفر العالمي...'):
         time.sleep(1)
-        matches = fetch_empire_data_fixed(leagues[sel_league])
+        matches = fetch_empire_data_absolute(leagues[sel_league])
         
         if matches:
             st.success(f"✅ نجح الاختراق! تم رصد {len(matches)} مباريات عالمية.")
@@ -75,4 +79,4 @@ if st.button("📡 فرض الاتصال السيادي المطلق"):
                         res_h, res_a = int(np.mean(h_sim)), int(np.mean(a_sim))
                         st.markdown(f"<h1 style='text-align:center; color:#D4AF37;'>{res_h} - {res_a}</h1>", unsafe_allow_html=True)
                         st.balloons()
-            
+    
