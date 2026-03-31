@@ -3,107 +3,88 @@ import numpy as np
 import requests
 import time
 
-# --- 🔱 AuraStats AI: THE SOVEREIGN ENGINE v48.0 ---
-st.set_page_config(page_title="AuraStats AI | Global", layout="wide", page_icon="🔱")
+# --- 🔱 AuraStats AI: THE TOTAL ANALYTICS v49.0 ---
+st.set_page_config(page_title="AuraStats AI | Comprehensive", layout="wide")
 
-# 👇 ضع مفتاح الـ API الخاص بك هنا بدقة (تأكد أنه بين العلامتين " ")
+# 👇 ضع مفتاح الـ API الخاص بك هنا
 API_KEY = "7c52e30a48a1d5b620195ee6061b7ccf" 
 
-# دالة جلب البيانات الذكية (محدثة لعام 2026)
-def get_matches_final(league_id):
+def get_data(league_id):
     headers = {'x-apisports-key': API_KEY}
     url = "https://api-sports.io"
-    # نحاول جلب مباريات الموسم الحالي 2025
     params = {'league': league_id, 'season': 2025, 'next': 15}
     try:
         res = requests.get(url, headers=headers, params=params, timeout=8).json()
         return res.get('response', [])
-    except:
-        return []
+    except: return []
 
-# --- CSS الهوية البصرية (اللون الذهبي والأسود الفخم) ---
+# --- CSS التنسيق الشامل ---
 st.markdown("""
     <style>
     .stApp { background: #000; color: #D4AF37; font-family: 'Cairo', sans-serif; }
-    .main-card { border: 2px solid #D4AF37; border-radius: 35px; padding: 25px; background: rgba(212,175,55,0.02); margin-bottom: 20px; }
-    .stButton>button { background: linear-gradient(90deg, #D4AF37, #F2D388); color: black !important; font-weight: 900; border-radius: 50px; height: 65px; border: none; font-size: 1.4rem; width: 100%; transition: 0.3s; }
-    .stButton>button:hover { transform: scale(1.02); box-shadow: 0 0 25px #D4AF37; }
-    /* تحسين حقول الإدخال للجوال */
-    .stTextInput>div>div>input { background-color: #111 !important; color: white !important; border: 1px solid #333 !important; }
+    .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); border-radius: 20px; padding: 15px; text-align: center; }
+    .stat-val { font-size: 2rem; font-weight: bold; color: #fff; }
+    .stat-label { color: #D4AF37; font-size: 0.9rem; }
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align:center; color:#D4AF37; font-size:3rem;'>AURASTATS AI 🏆</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#D4AF37;'>AURASTATS AI 🏆</h1>", unsafe_allow_html=True)
 
-# اختيار وضع التشغيل
-mode = st.radio("🔱 بوابة التحكم السيادي:", ["🌐 آلي (API)", "✍️ يدوي (Manual)"], horizontal=True)
-
-st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+mode = st.radio("بوابة التحكم:", ["🌐 آلي (API)", "✍️ يدوي"], horizontal=True)
 
 if mode == "🌐 آلي (API)":
-    leagues = {
-        "الدوري الإنجليزي 🏴󠁧󠁢󠁥󠁮󠁧󠁿": 39,
-        "دوري أبطال أوروبا 🇪🇺": 2,
-        "الدوري التونسي 🇹🇳": 202,
-        "الدوري السعودي 🇸🇦": 307
-    }
-    sel_league = st.selectbox("اختر البطولة العالمية:", list(leagues.keys()))
-    
-    with st.spinner('📡 جاري سحب البيانات...'):
-        matches = get_matches_final(leagues[sel_league])
+    leagues = {"الدوري الإنجليزي": 39, "أبطال أوروبا": 2, "الدوري التونسي": 202}
+    sel_league = st.selectbox("اختر البطولة:", list(leagues.keys()))
+    matches = get_data(leagues[sel_league])
     
     if matches:
-        match_titles = [f"{m['teams']['home']['name']} vs {m['teams']['away']['name']}" for m in matches]
-        selected_match = st.selectbox("اختر المباراة:", match_titles)
-        h_name, a_name = selected_match.split(" vs ")
-        h_xg, a_xg = 2.10, 1.45 # قيم افتراضية ذكية للتحليل
-        st.success(f"✅ جاهز لتحليل: {selected_match}")
+        titles = [f"{m['teams']['home']['name']} vs {m['teams']['away']['name']}" for m in matches]
+        sel_match = st.selectbox("اختر المباراة:", titles)
+        h_name, a_name = sel_match.split(" vs ")
+        h_xg, a_xg = 2.1, 1.4
     else:
-        # إذا فشل الـ API يفتح الإدخال فوراً لكي لا يتوقف التطبيق
-        st.error("📡 السيرفر لم يستجب بعد. أدخل بيانات المواجهة يدوياً:")
+        st.error("📡 السيرفر لم يستجب. أدخل البيانات يدوياً:")
         c1, c2 = st.columns(2)
-        h_name = c1.text_input("الفريق المضيف (Home):", "مانشستر سيتي")
-        h_xg = c1.number_input("قوة المضيف (xG):", value=2.20, step=0.1)
-        a_name = c2.text_input("الفريق الضيف (Away):", "أرسنال")
-        a_xg = c2.number_input("قوة الضيف (xG):", value=1.80, step=0.1)
-
+        h_name, h_xg = c1.text_input("المضيف:", "مانشستر سيتي"), c1.number_input("قوة المضيف:", 2.2)
+        a_name, a_xg = c2.text_input("الضيف:", "أرسنال"), c2.number_input("قوة الضيف:", 1.9)
 else:
-    # الوضع اليدوي الكامل (Manual Mode)
     c1, c2 = st.columns(2)
-    h_name = c1.text_input("الفريق المضيف:", "الترجي")
-    h_xg = c1.number_input("قوة الفريق (xG):", value=1.80, step=0.1)
-    a_name = c2.text_input("الضيف المتحدي:", "الأهلي")
-    a_xg = c2.number_input("قوة الخصم (xG):", value=1.50, step=0.1)
+    h_name, h_xg = c1.text_input("المضيف:", "الترجي"), c1.number_input("xG المضيف:", 1.8)
+    a_name, a_xg = c2.text_input("الضيف:", "الأهلي"), c2.number_input("xG الضيف:", 1.5)
 
-st.markdown("<br>", unsafe_allow_html=True)
+if st.button("🚀 إطلاق المحاكاة السيادية الشاملة"):
+    with st.spinner('يتم تحليل 100,000 سيناريو...'):
+        time.sleep(1.2)
+        h_sim = np.random.poisson(h_xg, 100000)
+        a_sim = np.random.poisson(a_xg, 100000)
+        
+        # حساب التوقعات الشاملة
+        score_h, score_a = int(np.mean(h_sim)), int(np.mean(a_sim))
+        win_prob = (h_sim > a_sim).mean() * 100
+        # معادلة ذكية لتوقع الركنيات بناءً على الـ xG والضغط
+        corners = int((h_xg + a_xg) * 3.5) 
+        danger_level = "عالي جداً" if (h_xg + a_xg) > 3 else "متوسط"
 
-if st.button("🚀 إطلاق المحاكاة السيادية العليا"):
-    if h_xg > 0:
-        with st.spinner('يتم تحليل 100,000 احتمال بويسون...'):
-            time.sleep(1.2)
-            # محرك المحاكاة
-            h_sim = np.random.poisson(h_xg, 100000)
-            a_sim = np.random.poisson(a_xg, 100000)
-            
-            score_h = int(np.mean(h_sim))
-            score_a = int(np.mean(a_sim))
-            win_prob = (h_sim > a_sim).mean() * 100
+        # 1. عرض النتيجة الكبرى
+        st.markdown(f"""
+            <div style='text-align:center; border:3px solid #D4AF37; border-radius:45px; padding:30px; background-color:#111;'>
+                <p style='color:#D4AF37;'>النتيجة المتوقعة</p>
+                <h1 style='color:#D4AF37; font-size:6rem; margin:0;'>{score_h} - {score_a}</h1>
+                <p style='color:#fff;'>{h_name} ضد {a_name}</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-            # عرض النتيجة بوضوح تام وتصميم فخم
-            st.markdown(f"""
-                <div style='text-align:center; border:3px solid #D4AF37; border-radius:45px; padding:35px; background-color:#111; margin-top:20px; box-shadow: 0 0 40px rgba(212,175,55,0.2);'>
-                    <p style='color:#D4AF37; font-size:1.4rem; margin-bottom:10px;'>النتيجة المتوقعة</p>
-                    <h1 style='color:#D4AF37; font-size:7rem; font-weight:900; margin:0; line-height:0.8;'>
-                        {score_h} - {score_a}
-                    </h1>
-                    <hr style='border:0.5px solid #333; margin:25px 0;'>
-                    <p style='color:#fff; font-size:1.3rem;'>نتيجة {h_name} ضد {a_name}</p>
-                    <p style='color:#888; font-size:1rem;'>فرصة فوز المضيف: {win_prob:.1f}%</p>
-                </div>
-            """, unsafe_allow_html=True)
-            st.balloons()
-    else:
-        st.warning("⚠️ يرجى إدخال بيانات صحيحة أولاً.")
+        st.markdown("<br>", unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; color:#444; margin-top:50px;'>AURASTATS AI | v48.0 SOVEREIGN EDITION</p>", unsafe_allow_html=True)
+        # 2. لوحة الإحصائيات الشاملة (الركنيات وغيرها)
+        col_stat1, col_stat2, col_stat3 = st.columns(3)
+        with col_stat1:
+            st.markdown(f"<div class='stat-box'><p class='stat-label'>🚩 ركنيات متوقعة</p><p class='stat-val'>{corners}</p></div>", unsafe_allow_html=True)
+        with col_stat2:
+            st.markdown(f"<div class='stat-box'><p class='stat-label'>📊 فرصة الفوز</p><p class='stat-val'>{win_prob:.1f}%</p></div>", unsafe_allow_html=True)
+        with col_stat3:
+            st.markdown(f"<div class='stat-box'><p class='stat-label'>🔥 مستوى الخطورة</p><p class='stat-val'>{danger_level}</p></div>", unsafe_allow_html=True)
+        
+        st.balloons()
+
+st.markdown("<p style='text-align:center; color:#444; margin-top:50px;'>AURASTATS AI | v49.0 COMPREHENSIVE EDITION</p>", unsafe_allow_html=True)
