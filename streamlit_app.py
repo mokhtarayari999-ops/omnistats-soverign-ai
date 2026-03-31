@@ -7,7 +7,7 @@ import datetime
 st.set_page_config(page_title="AuraStats Empire", layout="wide")
 
 # 👇 ضع مفتاحك هنا (تأكد أنه فعال ومنسوخ بدون مسافات)
-API_KEY = "7c52e30a48a1d5b620195ee6061b7ccf" 
+API_KEY = "8abdb813dece636993e2182de4ee374a" 
 
 def get_live_data_absolute(league_id):
     # 🕵️ الاختراق البرمجي: محاكاة اتصال متصفح حقيقي لتجاوز حظر السيرفر
