@@ -73,4 +73,4 @@ if st.button("📡 فرض الاتصال وجلب المباريات الحية"
                         res_h, res_a = int(np.mean(h_sim)), int(np.mean(a_sim))
                         st.markdown(f"<h1 style='text-align:center; color:#D4AF37;'>{res_h} - {res_a}</h1>", unsafe_allow_html=True)
                         st.balloons()
-                                          
+            
