@@ -12,21 +12,19 @@ API_KEY = "c2f6d97fe715446c4be7f30600191daa"
 # دالة جلب البيانات الذكية (تحاول في أكثر من موسم لضمان النتائج)
 def get_matches_smart(league_id):
     headers = {'x-apisports-key': API_KEY}
+    # ⚠️ الرابط يجب أن يكون كاملاً هكذا:
     url = "https://api-sports.io"
     
-    # المحاولة الأولى: موسم 2025 (الموسم الحالي لعام 2026)
+    # استخدام الموسم الحالي 2025 لجلب مباريات عام 2026
     params = {'league': league_id, 'season': 2025, 'next': 15}
     try:
         res = requests.get(url, headers=headers, params=params, timeout=10).json()
         if res.get('response'):
             return res['response']
-        
-        # المحاولة الثانية: إذا لم نجد مباريات، نجرب موسم 2024
-        params['season'] = 2024
-        res_alt = requests.get(url, headers=headers, params=params, timeout=10).json()
-        return res_alt.get('response', [])
+        return []
     except:
         return []
+        
 
 # --- تصميم الواجهة الفخمة ---
 st.markdown("""
