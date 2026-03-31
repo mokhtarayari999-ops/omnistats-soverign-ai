@@ -12,7 +12,8 @@ API_KEY ="c2f6d97fe715446c4be7f30600191daa"
 # --- وظائف النظام ---
 def get_data(league_id):
     headers = {'x-apisports-key': API_KEY}
-    url = f"https://api-sports.io{league_id}&season=2023&next=10"
+    url = url = f"https://api-sports.io{league_id}&season=2023&next=10"
+    league_id}&season=2023&next=10"
     try:
         res = requests.get(url, headers=headers, timeout=5).json()
         return res.get('response', [])
