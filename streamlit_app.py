@@ -69,4 +69,4 @@ if st.button("📡 فرض الاتصال وجلب البيانات الحية"):
                         a_sim = np.random.poisson(a_xg, 100000)
                         st.markdown(f"<div style='text-align:center; border:2px solid gold; padding:20px; border-radius:40px; background:#111;'><h1>{int(np.mean(h_sim))} - {int(np.mean(a_sim))}</h1></div>", unsafe_allow_html=True)
                         st.balloons()
-    
+                
