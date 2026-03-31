@@ -3,10 +3,10 @@ import numpy as np
 import requests
 import time
 
-# --- 🔱 AURASTATS PRO: THE FINAL ABSOLUTE BREACH v1000.0 ---
+# --- 🔱 AURASTATS PRO: THE FINAL ABSOLUTE BREACH v1000.1 ---
 st.set_page_config(page_title="AuraStats Pro", layout="wide")
 
-# 👇 ضع مفتاحك هنا (تأكد من تفعيل الحساب من بريدك الإلكتروني)
+# 👇 ضع مفتاحك هنا (تأكد من تفعيله من بريدك الإلكتروني)
 API_KEY = "8abdb813dece636993e2182de4ee374a" 
 
 def fetch_live_arabic_absolute(league_id):
@@ -17,15 +17,17 @@ def fetch_live_arabic_absolute(league_id):
     }
     url = "https://api-sports.io"
     
-    # محاولة جلب مباريات اليوم (2026-03-31) والمستقبل القريب عبر مواسم 2025 و 2026
-    for season in:
+    # 🛠️ تم تصحيح الخطأ هنا: وضعنا المواسم المطلوب البحث فيها (2025 و 2024) لضمان النتائج
+    for season in [2025, 2024]:
         params = {'league': league_id, 'season': season, 'next': 15}
         try:
             response = requests.get(url, headers=headers, params=params, timeout=15)
             if response.status_code == 200:
                 res_json = response.json()
-                if res_json.get('response'): return res_json['response']
-        except: continue
+                if res_json.get('response'):
+                    return res_json['response']
+        except:
+            continue
     return []
 
 # --- CSS الهوية الإمبراطورية الفائقة ---
@@ -81,7 +83,6 @@ if matches:
             st.markdown(f"<h1 class='score-display'>{int(np.mean(h_sim))} - {int(np.mean(a_sim))}</h1>", unsafe_allow_html=True)
             st.balloons()
 else:
-    # خطة الطوارئ النهائية: إذا فشل الاختراق، نفتح الإدخال فوراً لكي لا تتوقف
     st.error("❌ السيرفر العالمي يرفض الاتصال حالياً. أدخل البيانات يدوياً:")
     col_l, col_r = st.columns(2)
     h_n_m = col_l.text_input("المضيف:", "الترجي")
