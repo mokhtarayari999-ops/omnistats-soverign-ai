@@ -3,45 +3,47 @@ import numpy as np
 import requests
 import time
 
-# --- 🔱 AURASTATS EMPIRE: THE FINAL FIX v125.0 ---
+# --- 🔱 AURASTATS EMPIRE: THE FINAL LINK v130.0 ---
 st.set_page_config(page_title="AuraStats Empire", layout="wide", page_icon="🔱")
 
-# 👇 ضع مفتاحك من موقع football-data.org هنا بدقة
+# 👇 ضع مفتاحك من موقع football-data.org هنا
 API_KEY = "757497fe293f4e39a291cc5c575c6dc3" 
 
 def fetch_empire_data(league_code):
     headers = { 'X-Auth-Token': API_KEY }
     
-    # 🛠️ التعديل الجذري: فصلنا اسم الموقع تماماً عن رمز الدوري لضمان عدم الالتصاق
-    base_url = "https://football-data.org"
-    full_url = f"{base_url}/{league_code}/matches"
+    # 🛠️ الإصلاح النهائي: رابط مباشر بدون دمج متغيرات لضمان الدقة
+    url = f"https://football-data.org{league_code}/matches"
     
     try:
-        # طلب المباريات القادمة (Scheduled)
+        # طلب مباريات اليوم والمباريات القادمة (Scheduled)
         params = {'status': 'SCHEDULED'}
-        response = requests.get(full_url, headers=headers, params=params, timeout=15)
+        response = requests.get(url, headers=headers, params=params, timeout=15)
         
         if response.status_code == 200:
             return response.json().get('matches', [])
         elif response.status_code == 403:
-            st.error("❌ عذراً القائد مختار: هذا الدوري غير متاح في خطتك المجانية.")
+            st.error("❌ عذراً القائد مختار: الخطة المجانية لا تدعم هذا الدوري حالياً.")
+            return None
+        elif response.status_code == 429:
+            st.warning("⚠️ مهلاً يا شريك! السيرفر يطلب الهدوء (كثير من الطلبات). انتظر دقيقة.")
             return None
         else:
             st.error(f"❌ تنبيه من السيرفر: كود {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"❌ فشل الاتصال: تأكد من كتابة الرابط بشكل صحيح.")
+        st.error(f"❌ فشل الاتصال التقني: {e}")
         return None
 
-# --- تصميم واجهة الإمبراطور مختار ---
+# --- تصميم واجهة القائد مختار ---
 st.markdown("<h1 style='text-align:center; color:#D4AF37;'>AURASTATS EMPIRE 🏆</h1>", unsafe_allow_html=True)
 st.markdown(f"<p style='text-align:center; color:#888;'>مركز التحكم السيادي | القائد مختار</p>", unsafe_allow_html=True)
 
-# معرفات الدوريات المتاحة في حسابك
+# معرفات الدوريات المتاحة في خطة Football-data.org المجانية
 leagues = {
-    "🇩🇪 الدوري الألماني": "BL1",
     "🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي": "PL",
     "🇪🇸 الدوري الإسباني": "PD",
+    "🇩🇪 الدوري الألماني": "BL1",
     "🇮🇹 الدوري الإيطالي": "SA",
     "🇫🇷 الدوري الفرنسي": "FL1",
     "🇪🇺 دوري أبطال أوروبا": "CL"
@@ -50,11 +52,13 @@ leagues = {
 sel_league = st.selectbox("🎯 اختر البطولة المراد تحليلها:", list(leagues.keys()))
 
 if st.button("📡 فرض الاتصال وجلب المباريات الحية"):
-    with st.spinner('🎯 جاري تنظيف الرابط وفك التشفير...'):
+    with st.spinner('🎯 جاري فك تشفير الرابط والعبور...'):
+        # تأخير بسيط لمحاكاة "الاختراق"
+        time.sleep(1)
         matches = fetch_empire_data(leagues[sel_league])
         
         if matches:
-            st.success(f"✅ نجح الاختراق! تم رصد {len(matches)} مباريات.")
+            st.success(f"✅ نجح الاختراق! تم رصد {len(matches)} مباريات عالمية.")
             for m in matches:
                 h_name = m['homeTeam']['name']
                 a_name = m['awayTeam']['name']
@@ -71,6 +75,6 @@ if st.button("📡 فرض الاتصال وجلب المباريات الحية"
                         a_sim = np.random.poisson(a_xg, 100000)
                         res_h, res_a = int(np.mean(h_sim)), int(np.mean(a_sim))
                         
-                        st.markdown(f"<h1 style='text-align:center; color:#D4AF37;'>{res_h} - {res_a}</h1>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='text-align:center; border:2px solid #D4AF37; padding:15px; border-radius:30px; background:#111;'><h1 style='color:#D4AF37;'>{res_h} - {res_a}</h1><p style='color:white;'>النتيجة المتوقعة</p></div>", unsafe_allow_html=True)
                         st.balloons()
-        
+    
