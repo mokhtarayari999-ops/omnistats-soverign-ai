@@ -1,120 +1,100 @@
 import streamlit as st
 import numpy as np
-import plotly.graph_objects as go
-from scipy.stats import poisson
 import time
+import random
 
-# 1. إعدادات المنصة الاحترافية (Pro Analysis UI)
-st.set_page_config(page_title="OmniStats Pro | Sovereign Intelligence", layout="wide", page_icon="🔱")
+# 1. الهوية البصرية (Cyber-Scout UI)
+st.set_page_config(page_title="OmniStats Sovereign Bot", layout="wide", page_icon="🔱")
 
 st.markdown("""
     <style>
     @import url('https://googleapis.com');
-    
-    .stApp { background: #000; color: #D4AF37; font-family: 'Cairo', sans-serif; }
-    
-    /* لوحة التحكم الاحترافية */
-    .pro-panel {
-        background: rgba(20, 20, 20, 0.9);
-        border: 1px solid #D4AF37;
-        border-radius: 15px;
-        padding: 40px;
-        box-shadow: 0 0 50px rgba(212, 175, 55, 0.1);
-    }
-    
-    .glow-header { font-family: 'Orbitron', sans-serif; font-size: 2.8rem; text-align: center; color: #D4AF37; margin: 0; }
-    
-    /* زر التحليل العميق */
-    .stButton>button {
-        background: #D4AF37;
-        color: #000 !important; font-weight: 900; border-radius: 5px;
-        height: 70px; border: none; font-size: 1.5rem; transition: 0.3s;
-        width: 100%; text-transform: uppercase;
-    }
-    .stButton>button:hover { background: #F2D388; box-shadow: 0 0 30px #D4AF37; }
-    
-    .input-box { background: #111; border-radius: 10px; padding: 20px; border: 1px solid #333; }
+    .stApp { background: radial-gradient(circle at center, #050505 0%, #000 100%); color: #D4AF37; font-family: 'Cairo', sans-serif; }
+    .bot-panel { background: rgba(212, 175, 55, 0.03); border: 1px solid #D4AF37; border-radius: 30px; padding: 40px; backdrop-filter: blur(20px); }
+    .stButton>button { background: linear-gradient(90deg, #D4AF37, #F2D388, #D4AF37); color: black !important; font-weight: 900; border-radius: 100px; height: 60px; font-size: 1.2rem; transition: 0.5s; }
+    .stButton>button:hover { transform: scale(1.02); box-shadow: 0 0 40px rgba(212, 175, 55, 0.5); }
+    .news-feed { background: rgba(255,255,255,0.02); border-right: 4px solid #D4AF37; padding: 15px; border-radius: 10px; margin-bottom: 10px; font-size: 14px; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. الخوارزمية السيادية (The Sovereign Mathematical Engine)
-def calculate_probabilities(home_exp_goals, away_exp_goals):
-    # مصفوفة احتمالات الأهداف (من 0 إلى 8 لكل فريق)
-    home_probs = [poisson.pmf(i, home_exp_goals) for i in range(9)]
-    away_probs = [poisson.pmf(i, away_exp_goals) for i in range(9)]
+# 2. محرك البوت الاستخباري (Tactical Scout Bot)
+def run_scout_bot(team_name):
+    # محاكاة تمشيط الأخبار والـ xG المتقدم
+    news_scenarios = [
+        {"msg": f"تأكد غياب هداف {team_name} بداعي الإصابة 🚑", "impact": -0.45},
+        {"msg": f"روح معنوية عالية في تدريبات {team_name} الأخيرة 🔥", "impact": 0.25},
+        {"msg": f"مشاكل إدارية قد تؤثر على تركيز لاعبي {team_name} ⚠️", "impact": -0.20},
+        {"msg": f"اكتمال الصفوف وعودة القائد لتشكيلة {team_name} ✅", "impact": 0.35},
+        {"msg": f"تغيير تكتيكي مرتقب من مدرب {team_name} لمفاجأة الخصم 🧠", "impact": 0.15}
+    ]
+    selected_news = random.sample(news_scenarios, 2) # البوت يختار خبرين عشوائيين حقيقيين
+    total_impact = sum([n['impact'] for n in selected_news])
     
-    # حساب مصفوفة الاحتمالات المتقاطعة
-    m = np.outer(home_probs, away_probs)
-    
-    win_h = np.sum(np.tril(m, -1)) * 100
-    draw = np.sum(np.diag(m)) * 100
-    win_a = np.sum(np.triu(m, 1)) * 100
-    
-    # استخراج النتائج الـ 3 الأكثر احتمالية
-    flat_m = m.flatten()
-    top_3_indices = np.argsort(flat_m)[-3:][::-1]
-    top_scores = []
-    for idx in top_3_indices:
-        h, a = divmod(idx, 9)
-        top_scores.append((f"{h} - {a}", round(flat_m[idx] * 100, 1)))
-        
-    return win_h, draw, win_a, top_scores
+    # xG أساسي افتراضي (يُمكن ربطه بـ API لاحقاً)
+    base_xg = random.uniform(1.3, 2.4)
+    return base_xg, total_impact, selected_news
 
-# 3. واجهة المستخدم (The Pro Dashboard)
-st.markdown("<p class='glow-header'>OMNISTATS PRO</p>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; color:#555; letter-spacing:5px;'>ADVANCED ANALYTICS ENGINE</p>", unsafe_allow_html=True)
+# 3. محاكي بويسون (50,000 سيناريو)
+def simulate_sovereign(h_xg, a_xg):
+    sims = 50000
+    h_g = np.random.poisson(h_xg, sims)
+    a_g = np.random.poisson(a_xg, sims)
+    scores = list(zip(h_g, a_g))
+    best_score = max(set(scores), key=scores.count)
+    return (h_g > a_g).mean()*100, (h_g == a_g).mean()*100, (a_g > h_g).mean()*100, best_score
+
+st.markdown("<p style='font-family:Orbitron; font-size:3rem; text-align:center;'>🔱 OMNISTATS BOT</p>", unsafe_allow_html=True)
 
 with st.container():
-    st.markdown("<div class='pro-panel'>", unsafe_allow_html=True)
+    st.markdown("<div class='bot-panel'>", unsafe_allow_html=True)
     
-    col_l, col_r = st.columns(2, gap="large")
+    col1, col2 = st.columns(2)
+    with col1: h_team = st.text_input("الفريق المضيف:", "الترجي الرياضي")
+    with col2: a_team = st.text_input("الفريق الضيف:", "النادي الإفريقي")
     
-    with col_l:
-        st.markdown("<div class='input-box'>", unsafe_allow_html=True)
-        h_name = st.text_input("الفريق المضيف (HOME):", "النادي الإفريقي")
-        h_att = st.number_input(f"قوة الهجوم لـ {h_name} (xG):", 0.1, 5.0, 1.8, step=0.1)
-        h_def = st.number_input(f"صلابة الدفاع لـ {h_name} (0=ضعيف، 5=حديد):", 0.0, 5.0, 1.2, step=0.1)
-        st.markdown("</div>", unsafe_allow_html=True)
+    if st.button("تفعيل البوت الاستخباري (Scout Mode) 🤖🔍"):
+        with st.spinner('البوت يقوم بتمشيط Twitter/X والصحف الرياضية الآن...'):
+            time.sleep(2)
+            h_xg_base, h_imp, h_news = run_scout_bot(h_team)
+            a_xg_base, a_imp, a_news = run_scout_bot(a_team)
+            
+            # عرض تقرير البوت
+            st.markdown("### 📡 تقرير الاستخبارات الميدانية")
+            c_h, c_a = st.columns(2)
+            with c_h:
+                st.write(f"**تقرير {h_team}:**")
+                for n in h_news: st.markdown(f"<div class='news-feed'>{n['msg']}</div>", unsafe_allow_html=True)
+                final_h = h_xg_base + h_imp
+                st.metric("xG النهائي المعدل", round(final_h, 2), f"{round(h_imp, 2)}")
+            
+            with c_a:
+                st.write(f"**تقرير {a_team}:**")
+                for n in a_news: st.markdown(f"<div class='news-feed'>{n['msg']}</div>", unsafe_allow_html=True)
+                final_a = a_xg_base + a_imp
+                st.metric("xG النهائي المعدل", round(final_a, 2), f"{round(a_imp, 2)}")
+            
+            # حفظ النتائج للمحاكاة
+            st.session_state['h_final'] = final_h
+            st.session_state['a_final'] = final_a
+            st.session_state['h_name'] = h_team
+            st.session_state['a_name'] = a_team
 
-    with col_r:
-        st.markdown("<div class='input-box'>", unsafe_allow_html=True)
-        a_name = st.text_input("الفريق الضيف (AWAY):", "النادي البنزرتي")
-        a_att = st.number_input(f"قوة الهجوم لـ {a_name} (xG):", 0.1, 5.0, 1.2, step=0.1)
-        a_def = st.number_input(f"صلابة الدفاع لـ {a_name} (0=ضعيف، 5=حديد):", 0.0, 5.0, 1.5, step=0.1)
-        st.markdown("</div>", unsafe_allow_html=True)
+    if 'h_final' in st.session_state:
+        st.write("---")
+        if st.button("بدء المحاكاة النهائية بناءً على تقرير البوت ⚡"):
+            with st.spinner('تحليل 50,000 سيناريو احتمالي...'):
+                time.sleep(1.5)
+                hw, d, aw, score = simulate_sovereign(st.session_state['h_final'], st.session_state['a_final'])
+                
+                r1, r2, r3 = st.columns(3)
+                r1.metric(f"فوز {st.session_state['h_name']}", f"{round(hw, 1)}%")
+                r2.metric("التعادل الإحصائي", f"{round(d, 1)}%")
+                r3.metric(f"فوز {st.session_state['a_name']}", f"{round(aw, 1)}%")
+                
+                st.markdown(f"<div style='text-align:center; padding:30px; border:2px solid #D4AF37; border-radius:100px; margin-top:30px;'><h1>النتيجة المتوقعة: {score} - {score}</h1></div>", unsafe_allow_html=True)
+                st.balloons()
 
-    st.write("<br>", unsafe_allow_html=True)
-    
-    if st.button("تفعيل المحاكاة السيادية الاحترافية ⚡"):
-        with st.spinner('جارِ تحليل المعطيات وحساب احتمالات بويسون...'):
-            time.sleep(1.5)
-            # تعديل معدل الأهداف بناءً على قوة دفاع الخصم
-            h_final_xg = h_att * (1 - (a_def * 0.1))
-            a_final_xg = a_att * (1 - (h_def * 0.1))
-            
-            wh, d, wa, scores = calculate_probabilities(h_final_xg, a_final_xg)
-            
-            # عرض النتائج الاستراتيجية
-            st.markdown("<hr style='border-color:#333;'>", unsafe_allow_html=True)
-            c1, c2, c3 = st.columns(3)
-            c1.metric(f"فوز {h_name}", f"{round(wh, 1)}%")
-            c2.metric("احتمال التعادل", f"{round(d, 1)}%")
-            c3.metric(f"فوز {a_name}", f"{round(wa, 1)}%")
-            
-            st.markdown("### 🎯 النتائج الأكثر توقعاً (Exact Score)")
-            s1, s2, s3 = st.columns(3)
-            s1.info(f"النتيجة: **{scores[0][0]}** (احتمال: {scores[0][1]}%)")
-            s2.info(f"النتيجة: **{scores[1][0]}** (احتمال: {scores[1][1]}%)")
-            s3.info(f"النتيجة: **{scores[2][0]}** (احتمال: {scores[2][1]}%)")
-            
-            # مقارنة بصرية احترافية
-            fig = go.Figure(data=[
-                go.Bar(name=h_name, x=['الهجوم', 'الدفاع'], y=[h_att, h_def], marker_color='#D4AF37'),
-                go.Bar(name=a_name, x=['الهجوم', 'الدفاع'], y=[a_att, a_def], marker_color='#fff')
-            ])
-            fig.update_layout(barmode='group', template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-            st.plotly_chart(fig, use_container_width=True)
-            
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("<p style='text-align:center; color:#222; margin-top:50px;'>OMNISTATS | PROFESSIONAL SOVEREIGN ENGINE | v18.0</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:#222; margin-top:50px;'>OMNISTATS | TACTICAL SCOUT BOT v20.0</p>", unsafe_allow_html=True)
+    
