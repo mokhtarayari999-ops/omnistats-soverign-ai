@@ -1,76 +1,50 @@
 import streamlit as st
 import numpy as np
 import requests
-import datetime
 
-# --- 🔱 AURASTATS EMPIRE: THE ABSOLUTE STREAM v80.0 ---
+# --- 🔱 AURASTATS EMPIRE: THE PENETRATOR v90.0 ---
 st.set_page_config(page_title="AuraStats Empire", layout="wide")
 
-# 👇 ضع مفتاحك هنا (تأكد أنه فعال ومنسوخ بدون مسافات)
+# 👇 ضع مفتاحك هنا بدقة متناهية
 API_KEY = "8abdb813dece636993e2182de4ee374a" 
 
-def get_live_data_absolute(league_id):
-    # 🕵️ الاختراق البرمجي: محاكاة اتصال متصفح حقيقي لتجاوز حظر السيرفر
+def force_get_data(league_id):
+    # التعديل الجوهري: إضافة الـ Host والـ User-Agent لخداع السيرفر والظهور كمتصفح حقيقي
     headers = {
         'x-apisports-key': API_KEY,
-        'x-rapidapi-host': "v3.football.api-sports.io"
+        'User-Agent': 'Mozilla/5.0'
     }
-    url = "https://api-sports.io"
-    
-    # تحديد التاريخ الحالي (اليوم 31 مارس 2026) لطلب مباريات اللحظة
-    today = "2026-03-31" 
-    
-    params = {
-        'league': league_id,
-        'season': 2025, # موسم 2025/2026 هو الموسم النشط الآن
-        'date': today
-    }
+    # الرابط المباشر للنتائج المجدولة (Fixtures)
+    url = f"https://api-sports.io{league_id}&season=2025&next=10"
     
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=15)
-        res_data = response.json()
+        response = requests.get(url, headers=headers, timeout=15)
+        res_json = response.json()
         
-        # إذا لم يجد مباريات لليوم، يطلب الـ 10 مباريات القادمة (Next)
-        if not res_data.get('response'):
-            params_next = {'league': league_id, 'season': 2025, 'next': 10}
-            res_data = requests.get(url, headers=headers, params=params_next, timeout=15).json()
+        # تشخيص الأخطاء الحقيقية القادمة من API-Football
+        if res_json.get('errors'):
+            error_msg = str(res_json['errors'])
+            if "token" in error_msg.lower():
+                st.error(f"❌ السيرفر يرفض المفتاح: المفتاح غير مفعل بعد (يحتاج ساعة للتفعيل) أو أنه خاطئ.")
+            else:
+                st.error(f"❌ خطأ من السيرفر: {error_msg}")
+            return None
             
-        return res_data.get('response', [])
+        return res_json.get('response', [])
     except Exception as e:
+        st.error(f"❌ فشل الاتصال بالإنترنت أو بالسيرفر: {e}")
         return None
 
-# --- الواجهة الإمبراطورية (بدون رسائل اعتذار) ---
 st.markdown("<h1 style='text-align:center; color:#D4AF37;'>AURASTATS EMPIRE 🏆</h1>", unsafe_allow_html=True)
 
-leagues = {
-    "🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي": 39,
-    "🇪🇸 الدوري الإسباني": 140,
-    "🇹🇳 الدوري التونسي": 202,
-    "🇪🇺 أبطال أوروبا": 2
-}
+leagues = {"🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي": 39, "🇪🇸 الدوري الإسباني": 140, "🇹🇳 الدوري التونسي": 202}
+sel_league = st.selectbox("🎯 اختر الدوري:", list(leagues.keys()))
 
-sel_league = st.selectbox("🎯 اختر المسرح القتالي:", list(leagues.keys()))
-
-if st.button("📡 اختراق السيرفر وجلب البيانات الحية"):
-    with st.spinner('🎯 جاري فرض الاتصال بالسيرفرات العالمية...'):
-        matches = get_live_data_absolute(leagues[sel_league])
-        
+if st.button("📡 فرض الاتصال وجلب البيانات الحية"):
+    with st.spinner('🎯 جاري فك التشفير...'):
+        matches = force_get_data(leagues[sel_league])
         if matches:
-            st.success(f"✅ تم الاختراق بنجاح! وجدنا {len(matches)} مواجهات حقيقية.")
+            st.success(f"✅ نجح الاختراق! وجدنا {len(matches)} مباريات.")
             for m in matches:
-                h_name = m['teams']['home']['name']
-                a_name = m['teams']['away']['name']
-                time_match = m['fixture']['date'].split("T")[1][:5]
-                
-                with st.expander(f"🏟️ {h_name} vs {a_name} | 🕒 {time_match}"):
-                    # محرك المحاكاة داخل كل مباراة
-                    h_xg = st.slider(f"قوة {h_name} الهجومية:", 0.5, 4.0, 1.8, key=f"h_{h_name}")
-                    a_xg = st.slider(f"قوة {a_name} الهجومية:", 0.5, 4.0, 1.4, key=f"a_{a_name}")
-                    
-                    if st.button(f"🚀 تحليل {h_name} و {a_name}", key=f"btn_{h_name}"):
-                        h_sim = np.random.poisson(h_xg, 100000)
-                        a_sim = np.random.poisson(a_xg, 100000)
-                        st.write(f"### النتيجة المتوقعة: {int(np.mean(h_sim))} - {int(np.mean(a_sim))}")
-        else:
-            st.error("❌ السيرفر يرفض المفتاح (API Key). تأكد من صلاحية المفتاح في موقع API-Football.")
+                st.write(f"🏟️ {m['teams']['home']['name']} vs {m['teams']['away']['name']}")
                 
