@@ -3,70 +3,79 @@ import numpy as np
 import requests
 import time
 
-# --- 🔱 AURASTATS EMPIRE: ABSOLUTE MASTERY v100.0 ---
-st.set_page_config(page_title="AuraStats Empire", layout="wide")
+# --- 🔱 AURASTATS EMPIRE: FOOTBALL-DATA EXCLUSIVE v115.0 ---
+st.set_page_config(page_title="AuraStats Empire", layout="wide", page_icon="🔱")
 
-# 👇 ضع مفتاحك هنا (تأكد من نسخه بدقة وبدون مسافات)
-API_KEY = "8abdb813dece636993e2182de4ee374a" 
+# 👇 ضع مفتاحك من موقع football-data.org هنا بدقة
+API_KEY = "757497fe293f4e39a291cc5c575c6dc3" 
 
-def fetch_live_empire(league_id):
-    # 🕵️ محاكاة هوية متصفح حقيقي لتجاوز الحظر
-    headers = {
-        'x-apisports-key': API_KEY,
-        'x-rapidapi-host': "v3.football.api-sports.io",
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
-    }
-    url = "https://api-sports.io"
-    
-    # طلب مباريات موسم 2025/2026 الحالية
-    params = {'league': league_id, 'season': 2025, 'next': 12}
+def fetch_empire_data(league_code):
+    # 🕵️ التوثيق المخصص لسيرفر football-data.org
+    headers = { 'X-Auth-Token': API_KEY }
+    # الرابط المحدث لجلب مباريات الدوري المختار
+    url = f"https://football-data.org{league_code}/matches"
     
     try:
+        # طلب المباريات القادمة فقط لتقليل الضغط
+        params = {'status': 'SCHEDULED'}
         response = requests.get(url, headers=headers, params=params, timeout=15)
-        # التأكد من نجاح الطلب قبل فك التشفير
+        
         if response.status_code == 200:
-            res_json = response.json()
-            if res_json.get('response'):
-                return res_json['response']
-            elif res_json.get('errors'):
-                st.error(f"❌ تنبيه من السيرفر: {res_json['errors']}")
+            return response.json().get('matches', [])
+        elif response.status_code == 403:
+            st.error("❌ خطأ 403: هذا الدوري غير متاح في خطتك المجانية.")
+            return None
         else:
-            st.error(f"❌ السيرفر رد بكود: {response.status_code}")
-        return None
+            st.error(f"❌ خطأ من السيرفر: {response.status_code}")
+            return None
     except Exception as e:
-        st.error(f"❌ حدث خطأ تقني: {e}")
+        st.error(f"❌ فشل الاتصال: {e}")
         return None
 
-# --- تصميم الواجهة الفخمة ---
+# --- التصميم السيادي المعتاد ---
 st.markdown("<h1 style='text-align:center; color:#D4AF37;'>AURASTATS EMPIRE 🏆</h1>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center; color:#888;'>مرحباً بك يا قائد مختار في مركز التحكم</p>", unsafe_allow_html=True)
 
+# الدوريات المتاحة مجاناً في حسابك (Free Tier)
 leagues = {
-    "🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي": 39,
-    "🇪🇸 الدوري الإسباني": 140,
-    "🇹🇳 الدوري التونسي": 202,
-    "🇪🇺 أبطال أوروبا": 2
+    "🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي": "PL",
+    "🇪🇸 الدوري الإسباني": "PD",
+    "🇩🇪 الدوري الألماني": "BL1",
+    "🇮🇹 الدوري الإيطالي": "SA",
+    "🇫🇷 الدوري الفرنسي": "FL1",
+    "🇪🇺 دوري أبطال أوروبا": "CL",
+    "🇳🇱 الدوري الهولندي": "DED",
+    "🇵🇹 الدوري البرتغالي": "PPL"
 }
 
-sel_league = st.selectbox("🎯 اختر المسرح القتالي:", list(leagues.keys()))
+sel_league = st.selectbox("🎯 اختر البطولة المراد تحليلها:", list(leagues.keys()))
 
-if st.button("📡 فرض الاتصال وجلب البيانات الحية"):
-    with st.spinner('🎯 جاري فك التشفير والعبور من الحماية...'):
-        matches = fetch_live_empire(leagues[sel_league])
+if st.button("📡 فرض الاتصال وجلب المباريات الحية"):
+    with st.spinner('🎯 جاري الاتصال بسيرفر Football-Data...'):
+        matches = fetch_empire_data(leagues[sel_league])
         
         if matches:
-            st.success(f"✅ نجح الاختراق! وجدنا {len(matches)} مباريات.")
+            st.success(f"✅ نجح الاختراق! وجدنا {len(matches)} مباريات قادمة.")
             for m in matches:
-                h_name = m['teams']['home']['name']
-                a_name = m['teams']['away']['name']
+                h_name = m['homeTeam']['name']
+                a_name = m['awayTeam']['name']
+                match_time = m['utcDate'].replace("T", " ").replace("Z", "")
                 
-                with st.expander(f"🏟️ {h_name} vs {a_name}"):
-                    # محرك المحاكاة الحصري
-                    h_xg = st.slider(f"قوة {h_name}:", 0.5, 4.0, 2.1, key=f"h_{h_name}")
-                    a_xg = st.slider(f"قوة {a_name}:", 0.5, 4.0, 1.4, key=f"a_{a_name}")
+                with st.expander(f"🏟️ {h_name} vs {a_name} | 🕒 {match_time}"):
+                    # محرك المحاكاة السيادي
+                    col1, col2 = st.columns(2)
+                    h_xg = col1.slider(f"قوة {h_name}:", 0.5, 4.5, 2.0, key=f"h_{m['id']}")
+                    a_xg = col2.slider(f"قوة {a_name}:", 0.5, 4.5, 1.5, key=f"a_{m['id']}")
                     
-                    if st.button(f"🚀 تحليل {h_name} ضد {a_name}", key=f"btn_{h_name}"):
+                    if st.button(f"🚀 إطلاق المحاكاة لـ {h_name}", key=f"btn_{m['id']}"):
                         h_sim = np.random.poisson(h_xg, 100000)
                         a_sim = np.random.poisson(a_xg, 100000)
-                        st.markdown(f"<div style='text-align:center; border:2px solid gold; padding:20px; border-radius:40px; background:#111;'><h1>{int(np.mean(h_sim))} - {int(np.mean(a_sim))}</h1></div>", unsafe_allow_html=True)
+                        res_h, res_a = int(np.mean(h_sim)), int(np.mean(a_sim))
+                        
+                        st.markdown(f"""
+                            <div style='text-align:center; border:3px solid #D4AF37; border-radius:30px; padding:20px; background:#111;'>
+                                <h1 style='color:#D4AF37; font-size:4rem; margin:0;'>{res_h} - {res_a}</h1>
+                                <p style='color:white;'>النتيجة الأكثر توقعاً</p>
+                            </div>
+                        """, unsafe_allow_html=True)
                         st.balloons()
-                
