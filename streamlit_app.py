@@ -3,47 +3,48 @@ import numpy as np
 import requests
 import time
 
-# --- 🔱 AURASTATS EMPIRE: THE ABSOLUTE SOLUTION v230.0 ---
+# --- 🔱 AURASTATS EMPIRE: THE FINAL WIPE v240.0 ---
 st.set_page_config(page_title="AuraStats Empire", layout="wide", page_icon="🔱")
 
-# 👇 ضع مفتاحك من موقع football-data.org هنا
+# 👇 ضع مفتاحك من موقع football-data.org هنا بدقة
 API_KEY = "757497fe293f4e39a291cc5c575c6dc3" 
 
-def fetch_empire_data_absolute(league_code):
+def fetch_empire_data_ultimate(league_code):
     headers = { 'X-Auth-Token': API_KEY }
     
-    # 🛠️ الإصلاح الجوهري: روابط مكتوبة يدوياً بالكامل لمنع أي التصاق (مثل orgpd)
-    if league_code == "PL": url = "https://football-data.org"
-    elif league_code == "PD": url = "https://football-data.org"
-    elif league_code == "BL1": url = "https://football-data.org"
-    elif league_code == "SA": url = "https://football-data.org"
-    elif league_code == "FL1": url = "https://football-data.org"
-    elif league_code == "CL": url = "https://football-data.org"
-    else: return None
+    # 🛠️ الإصلاح الجوهري: استخدام روابط كاملة وثابتة تماماً لمنع أي تداخل
+    league_urls = {
+        "PL": "https://football-data.org",
+        "PD": "https://football-data.org",
+        "BL1": "https://football-data.org",
+        "SA": "https://football-data.org",
+        "FL1": "https://football-data.org",
+        "CL": "https://football-data.org"
+    }
+    
+    url = league_urls.get(league_code)
     
     try:
-        # طلب المباريات القادمة (Scheduled) مع مهلة انتظار طويلة
+        # طلب المباريات القادمة (Scheduled)
         params = {'status': 'SCHEDULED'}
-        response = requests.get(url, headers=headers, params=params, timeout=20, verify=False)
+        response = requests.get(url, headers=headers, params=params, timeout=15, verify=False)
         
         if response.status_code == 200:
             return response.json().get('matches', [])
-        elif response.status_code == 403:
-            st.error("❌ عذراً القائد مختار: هذا الدوري غير متاح في خطتك المجانية.")
-            return None
         elif response.status_code == 429:
             st.warning("⚠️ السيرفر مضغوط! انتظر دقيقة واحدة وأعد المحاولة.")
             return None
         else:
-            st.error(f"❌ تنبيه من السيرفر: كود {response.status_code}")
+            # رسالة خطأ واضحة لمساعدة القائد مختار في التشخيص
+            st.error(f"❌ تنبيه من السيرفر العالمي: كود {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"❌ فشل الاتصال التقني: تأكد من صحة الرابط.")
+        st.error(f"❌ فشل الاتصال: تأكد من تشغيل الإنترنت ومسح ذاكرة التطبيق.")
         return None
 
-# --- واجهة الإمبراطور مختار ---
+# --- واجهة القائد مختار ---
 st.markdown("<h1 style='text-align:center; color:#D4AF37;'>AURASTATS EMPIRE 🏆</h1>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align:center; color:#888;'>مركز التحكم السيادي | النسخة v230.0</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center; color:#888;'>مركز التحكم السيادي | النسخة v240.0</p>", unsafe_allow_html=True)
 
 leagues = {
     "🇪🇸 الدوري الإسباني": "PD",
@@ -57,9 +58,11 @@ leagues = {
 sel_league = st.selectbox("🎯 اختر المسرح القتالي:", list(leagues.keys()))
 
 if st.button("📡 فرض الاتصال السيادي المباشر"):
-    with st.spinner('🎯 جاري فك شفرات السيرفر العالمي...'):
+    # 🧹 تنظيف الذاكرة المؤقتة لضمان قراءة الكود الجديد
+    st.cache_data.clear()
+    with st.spinner('🎯 جاري فرض السيادة الرقمية على السيرفر...'):
         time.sleep(1)
-        matches = fetch_empire_data_absolute(leagues[sel_league])
+        matches = fetch_empire_data_ultimate(leagues[sel_league])
         
         if matches:
             st.success(f"✅ نجح الاختراق! تم رصد {len(matches)} مباريات عالمية.")
@@ -76,7 +79,6 @@ if st.button("📡 فرض الاتصال السيادي المباشر"):
                     if st.button(f"🚀 إطلاق المحاكاة لـ {h_name}", key=f"btn_{m['id']}"):
                         h_sim = np.random.poisson(h_xg, 100000)
                         a_sim = np.random.poisson(a_xg, 100000)
-                        res_h, res_a = int(np.mean(h_sim)), int(np.mean(a_sim))
-                        st.markdown(f"<h1 style='text-align:center; color:#D4AF37;'>{res_h} - {res_a}</h1>", unsafe_allow_html=True)
+                        st.markdown(f"<h1 style='text-align:center; color:#D4AF37;'>{int(np.mean(h_sim))} - {int(np.mean(a_sim))}</h1>", unsafe_allow_html=True)
                         st.balloons()
-    
+        
