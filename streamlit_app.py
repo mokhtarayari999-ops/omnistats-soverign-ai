@@ -4,83 +4,71 @@ import requests
 import time
 from datetime import datetime
 
-# --- 🔱 ARABIC PRO: THE 2026 SUPREME EDITION ---
+# --- 🔱 ARABIC PRO: THE 2026 FINAL BYPASS ---
 st.set_page_config(page_title="Arabic Pro", layout="wide")
 
-# 🔑 نصيحة: إذا استمرت رسالة "الخادم لا يستجيب"، استبدل هذا المفتاح بآخر جديد
-API_KEY = "afc8d6974db7dfcf37770c1b5791b65d" 
-HEADERS = {'x-apisports-key': API_KEY}
+# جرب استخدام هذا الرابط البديل (V3 هو الأحدث والأكثر استقراراً)
+API_BASE = "https://api-sports.io"
+API_KEY = "afc8d6974db7dfcf37770c1b5791b65d"
 
-def get_matches_smart(league_id):
-    # محاولة جلب مباريات اليوم (أكثر طلب مستقر في 2026)
-    today = datetime.now().strftime('%Y-%m-%d')
-    url = f"https://api-sports.io{today}"
-    try:
-        res = requests.get(url, headers=HEADERS, timeout=5).json()
-        if res.get('response'):
-            # فلترة المباريات التابعة للدوري المختار فقط
-            return [m for m in res['response'] if m['league']['id'] == league_id]
-        return None
-    except: return None
+def fetch_master_bypass(league_id):
+    headers = {'x-apisports-key': API_KEY, 'User-Agent': 'Mozilla/5.0'}
+    current_year = datetime.now().year
+    
+    # 🪄 محاولة مزدوجة للمواسم (2025 و 2026) لتجاوز نقص البيانات
+    for season in [current_year - 1, current_year]:
+        url = f"{API_BASE}/fixtures?league={league_id}&season={season}&next=10"
+        try:
+            # إضافة timeout قصير لتجنب تعليق التطبيق
+            res = requests.get(url, headers=headers, timeout=5).json()
+            data = res.get('response', [])
+            if data: return data
+        except Exception as e:
+            continue
+    return None
 
-# --- التصميم الإمبراطوري (CSS) ---
-st.markdown("""
-    <style>
-    .stApp { background: #000; color: #D4AF37; font-family: 'Cairo', sans-serif; }
-    .main-card { border: 2px solid #D4AF37; border-radius: 25px; padding: 25px; background: rgba(212,175,55,0.03); text-align: center; }
-    .big-score { font-size: 7rem; font-weight: 900; color: #D4AF37; text-shadow: 0 0 40px #D4AF37; margin: 10px 0; }
-    .status-badge { background: #d4af37; color: black; padding: 5px 15px; border-radius: 15px; font-weight: bold; }
-    </style>
-    """, unsafe_allow_html=True)
-
+# --- واجهة 2026 الفخمة ---
 st.markdown("<h1 style='text-align:center; color:#D4AF37;'>ARABIC PRO 🏆</h1>", unsafe_allow_html=True)
 
-# قائمة الدوريات الأكثر استقراراً
 leagues = {
     "🇬🇧 الدوري الإنجليزي الممتاز": 39,
     "🇪🇸 الدوري الإسباني": 140,
-    "🇹🇳 الدوري التونسي الممتاز": 202,
-    "🇸🇦 دوري روشن السعودي": 307
+    "🇮🇹 الدوري الإيطالي": 135,
+    "🇪🇺 دوري أبطال أوروبا": 2
 }
 
-sel_league_name = st.selectbox("🎯 اختر الساحة المستهدفة:", list(leagues.keys()))
-league_id = leagues[sel_league_name]
+sel_league = st.selectbox("🎯 اختر الساحة المستهدفة:", list(leagues.keys()))
 
-# محاولة الربط
-matches = get_matches_smart(league_id)
+# محاولة الربط "العنيفة"
+with st.spinner('📡 جاري محاولة اختراق جدار الحماية وجلب البيانات...'):
+    matches = fetch_master_bypass(leagues[sel_league])
 
-st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+st.markdown("<div style='border:2px solid #D4AF37; padding:20px; border-radius:20px; background:rgba(212,175,55,0.02);'>", unsafe_allow_html=True)
 
-if matches and len(matches) > 0:
-    # الحالة 1: الربط ناجح (بيانات حقيقية)
+if matches:
     titles = {f"{m['teams']['home']['name']} 🆚 {m['teams']['away']['name']}": m for m in matches}
-    sel_match = st.selectbox("📅 المباريات المكتشفة حياً:", list(titles.keys()))
+    sel_match = st.selectbox("✅ تم كسر العجز! اختر المواجهة:", list(titles.keys()))
     h_name = titles[sel_match]['teams']['home']['name']
     a_name = titles[sel_match]['teams']['away']['name']
-    st.markdown("<span class='status-badge'>📡 الربط مباشر</span>", unsafe_allow_html=True)
 else:
-    # الحالة 2: تجاوز العجز (المحاكي المستقل)
-    st.markdown("<p style='color:#ff4b4b;'>⚠️ عجز مؤقت في الخادم - تم تفعيل المحاكي الذاتي</p>", unsafe_allow_html=True)
+    # 🛡️ وضع "المحاكي المستقل" - حل ذكي لكي لا يظهر التطبيق كأنه معطل
+    st.error("⚠️ عجز تقني في جدار حماية الشبكة - تم تشغيل المحاكي الذاتي")
     col1, col2 = st.columns(2)
     h_name = col1.text_input("الفريق المضيف:", "مانشستر سيتي")
     a_name = col2.text_input("الفريق الضيف:", "أرسنال")
 
-# زر المحاكاة الشمولية
+# زر المحاكاة (يعمل دائماً)
 if st.button("🔱 إطلاق المحاكاة والنتائج"):
-    with st.spinner('⏳ جاري تحليل 100,000 سيناريو احتمالي...'):
+    with st.spinner('🎯 جاري تحليل السيناريوهات...'):
         time.sleep(1)
-        # منطق توزيـع Poisson لتوقع الأهداف
-        h_xg = 2.1 if "سيتي" in h_name or "أهلي" in h_name or "ترجي" in h_name else 1.6
-        a_xg = 1.2
-        
-        score_h = np.random.poisson(h_xg)
-        score_a = np.random.poisson(a_xg)
+        # توقع أهداف عشوائي ذكي (Poisson)
+        h_res = np.random.poisson(2.1)
+        a_res = np.random.poisson(1.3)
         
         st.markdown(f"""
-            <div style='margin-top:20px;'>
-                <p style='color:#888; margin:0;'>النتيجة المتوقعة النهائية</p>
-                <h1 class='big-score'>{score_h} - {score_a}</h1>
-                <h2 style='color:white;'>{h_name} vs {a_name}</h2>
+            <div style='text-align:center; margin-top:20px;'>
+                <h1 style='font-size:6rem; color:#D4AF37;'>{h_res} - {a_res}</h1>
+                <h3 style='color:white;'>{h_name} vs {a_name}</h3>
             </div>
         """, unsafe_allow_html=True)
         st.balloons()
