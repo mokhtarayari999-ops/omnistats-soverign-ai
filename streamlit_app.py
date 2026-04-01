@@ -57,3 +57,4 @@ if st.button("🔱 إطلاق المحاكاة"):
     a_res = np.random.poisson(1.3)
     st.markdown(f"<h1 style='text-align:center; font-size:6rem; color:#D4AF37;'>{h_res} - {a_res}</h1>", unsafe_allow_html=True)
     st.balloons()
+    
