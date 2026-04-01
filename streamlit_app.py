@@ -3,71 +3,69 @@ import numpy as np
 import time
 import plotly.graph_objects as go
 
-# --- 🛰️ إعدادات النواة المركزية ---
-st.set_page_config(page_title="ARABIC PRO | THE BEAST", layout="wide", initial_sidebar_state="collapsed")
+# --- 🛰️ إعدادات المحرك السيادي ---
+st.set_page_config(page_title="ARABIC PRO | PHANTOM", layout="wide", initial_sidebar_state="collapsed")
 
-# --- 🎨 CSS التصميم الوحشي (الذهب المتفجر والأسود العميق) ---
+# --- 🎨 CSS التصميم الخيالي (زجاجي، ذهبي، خطوط متوسطة) ---
 st.markdown("""
     <style>
     @import url('https://googleapis.com');
     
-    .stApp { background: #000; color: #D4AF37; font-family: 'Cairo', sans-serif; }
+    .stApp { background: radial-gradient(circle, #0f0f0f 0%, #000 100%); color: #D4AF37; font-family: 'Cairo', sans-serif; }
     
-    /* رأس الصفحة المتوحش */
-    .beast-header { text-align: center; padding: 60px 20px; border-bottom: 4px solid #D4AF37; background: linear-gradient(180deg, #111 0%, #000 100%); box-shadow: 0 10px 50px rgba(212,175,55,0.2); margin-bottom: 50px; }
-    .beast-title { font-family: 'Orbitron', sans-serif; font-size: 5rem; letter-spacing: 10px; color: #D4AF37; text-shadow: 0 0 30px #D4AF37; margin: 0; }
+    /* رأس الصفحة الأنيق */
+    .phantom-header { text-align: center; padding: 30px 10px; border-bottom: 1px solid rgba(212,175,55,0.3); margin-bottom: 25px; }
+    .phantom-title { font-size: 2.5rem; font-weight: 900; color: #D4AF37; text-shadow: 0 0 15px rgba(212,175,55,0.5); margin: 0; }
     
-    /* بطاقة النتائج المرعبة */
-    .beast-card { background: #080808; border: 2px solid #D4AF37; border-radius: 50px; padding: 60px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 0 100px rgba(212,175,55,0.1); }
-    .beast-card::before { content: 'LIVE ANALYSIS'; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #ff0000; font-weight: 900; letter-spacing: 5px; font-size: 0.8rem; animation: blink 1s infinite; }
+    /* بطاقة النتيجة الزجاجية */
+    .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); border-radius: 25px; padding: 25px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.5); margin-top: 20px; }
+    .score-text { font-size: 5rem; font-weight: 900; color: #D4AF37; text-shadow: 0 0 20px #D4AF37; margin: 10px 0; line-height: 1.2; }
     
-    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+    /* صناديق الإحصائيات المتوسطة */
+    .stat-grid { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .stat-pill { background: rgba(0,0,0,0.6); border: 1px solid #D4AF37; border-radius: 15px; padding: 12px; min-width: 100px; flex: 1; }
+    .stat-pill p { font-size: 0.8rem; color: #888; margin: 0; }
+    .stat-pill h3 { font-size: 1.2rem; color: #fff; margin: 5px 0 0 0; }
     
-    .beast-score { font-family: 'Orbitron', sans-serif; font-size: 11rem; font-weight: 900; color: #D4AF37; text-shadow: 0 0 60px #D4AF37; line-height: 1; margin: 30px 0; }
+    /* الزر الخيالي المتوهج */
+    .stButton>button { background: linear-gradient(90deg, #D4AF37, #8A6D3B) !important; color: #000 !important; font-weight: 900 !important; border-radius: 15px !important; border: none !important; padding: 12px !important; width: 100% !important; font-size: 1.2rem !important; transition: 0.3s !important; box-shadow: 0 5px 15px rgba(212,175,55,0.3) !important; }
+    .stButton>button:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(212,175,55,0.5) !important; }
     
-    /* صناديق الإحصائيات الذكية */
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 40px; }
-    .stat-node { background: #111; border: 1px solid rgba(212,175,55,0.3); border-radius: 20px; padding: 25px; transition: 0.5s; }
-    .stat-node:hover { border-color: #D4AF37; transform: translateY(-10px); box-shadow: 0 10px 30px rgba(212,175,55,0.2); }
-    
-    /* الزر القاتل */
-    .stButton>button { background: #D4AF37 !important; color: #000 !important; font-family: 'Orbitron', sans-serif !important; font-size: 2rem !important; font-weight: 900 !important; border-radius: 0 !important; border: 2px solid #D4AF37 !important; padding: 30px !important; width: 100% !important; transition: 0.4s !important; text-transform: uppercase; }
-    .stButton>button:hover { background: #000 !important; color: #D4AF37 !important; box-shadow: 0 0 50px #D4AF37 !important; }
-    
-    /* تحسين المدخلات */
-    input { background: #000 !important; border: 2px solid #D4AF37 !important; color: #fff !important; font-size: 1.8rem !important; text-align: center !important; height: 70px !important; border-radius: 0 !important; }
+    /* تحسين المدخلات (حجم متوسط) */
+    .stTextInput>div>div>input { background: #0a0a0a !important; border: 1px solid #D4AF37 !important; color: #fff !important; font-size: 1.1rem !important; border-radius: 12px !important; text-align: center !important; }
+    label { color: #D4AF37 !important; font-weight: bold !important; font-size: 1rem !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 🏛️ واجهة الوحش ---
-st.markdown("<div class='beast-header'><h1 class='beast-title'>ARABIC PRO</h1><p style='letter-spacing: 5px; color:#888;'>SUPREME BEAST ENGINE v25.0</p></div>", unsafe_allow_html=True)
+# --- 🏟️ واجهة الخيال ---
+st.markdown("<div class='phantom-header'><h1 class='phantom-title'>ARABIC PRO</h1><p style='color:#666;'>نظام المحاكاة الخيالي - إصدار 2026</p></div>", unsafe_allow_html=True)
 
-# مدخلات القوة
+# مدخلات متوازنة الحجم
 col1, col2 = st.columns(2)
 with col1:
-    h_name = st.text_input("NAME", "MAN CITY", key="h_name").upper()
-    h_pwr = st.slider("ATTACK POWER", 0.1, 10.0, 7.5, key="h_pwr")
-    h_def = st.slider("DEFENSE WALL", 0.1, 10.0, 8.0, key="h_def")
+    h_name = st.text_input("اسم المستضيف:", "مانشستر سيتي")
+    h_pwr = st.slider("القوة الهجومية:", 1.0, 10.0, 7.5)
+    h_def = st.slider("الصلابة الدفاعية:", 1.0, 10.0, 8.0)
 
 with col2:
-    a_name = st.text_input("NAME ", "REAL MADRID", key="a_name").upper()
-    a_pwr = st.slider("ATTACK POWER ", 0.1, 10.0, 6.8, key="a_pwr")
-    a_def = st.slider("DEFENSE WALL ", 0.1, 10.0, 7.5, key="a_def")
+    a_name = st.text_input("اسم الضيف:", "ريال مدريد")
+    a_pwr = st.slider("القوة الهجومية :", 1.0, 10.0, 7.0)
+    a_def = st.slider("الصلابة الدفاعية :", 1.0, 10.0, 7.8)
 
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-# --- 🚀 محرك المحاكاة الكاسر ---
-if st.button("EXECUTE SIMULATION"):
-    with st.spinner('☣️ ANALYZING MILLIONS OF DATA POINTS...'):
-        time.sleep(3) # الانتظار لزيادة الحماس
+# --- 🚀 محرك المحاكاة الفانتوم ---
+if st.button("🔱 بـدء المحاكاة الخرافية"):
+    with st.spinner('⏳ جاري تحليل موازين القوى...'):
+        time.sleep(2)
         
-        # معادلة "الوحش" السرية (تعديل xG بناءً على التضاد بين الهجوم والدفاع)
-        h_idx = max(0.1, (h_pwr * (11 - a_def)) / 25)
-        a_idx = max(0.1, (a_pwr * (11 - h_def)) / 25)
+        # معادلة المحاكاة (متوسط الأهداف المتوقع)
+        h_idx = max(0.2, (h_pwr * (11 - a_def)) / 25)
+        a_idx = max(0.2, (a_pwr * (11 - h_def)) / 25)
         
-        # محاكاة مونت كارلو (مليون سيناريو لـ "الوحش")
-        h_sim = np.random.poisson(h_idx, 1000000)
-        a_sim = np.random.poisson(a_idx, 1000000)
+        # محاكاة Poisson
+        h_sim = np.random.poisson(h_idx, 100000)
+        a_sim = np.random.poisson(a_idx, 100000)
         
         score_h = int(np.round(np.mean(h_sim)))
         score_a = int(np.round(np.mean(a_sim)))
@@ -75,35 +73,22 @@ if st.button("EXECUTE SIMULATION"):
         draw = (h_sim == a_sim).mean() * 100
         win_a = (h_sim < a_sim).mean() * 100
         
-        # رادارات إحصائية
-        total_goals = (h_sim + a_sim).mean()
-        danger_index = (h_idx + a_idx) * 10 # مؤشر الخطورة
-
         st.markdown(f"""
-            <div class='beast-card'>
-                <p style='color: #444; letter-spacing: 10px; margin:0;'>EXPECTED SUPREMACY</p>
-                <div class='beast-score'>{score_h} - {score_a}</div>
-                <h1 style='color: white; font-size: 3.5rem; font-family: Orbitron;'>{h_name} <span style='color:#D4AF37;'>X</span> {a_name}</h1>
+            <div class='glass-card'>
+                <p style='color: #888; font-size: 0.9rem; margin:0;'>النتيجة المتوقعة</p>
+                <div class='score-text'>{score_h} - {score_a}</div>
+                <h2 style='color: #fff; font-size: 1.5rem;'>{h_name} <span style='color:#D4AF37;'>❌</span> {a_name}</h2>
                 <div class='stat-grid'>
-                    <div class='stat-node'><p style='color:#D4AF37;'>VICTORY {h_name}</p><h2>{win_h:.1f}%</h2></div>
-                    <div class='stat-node'><p style='color:#888;'>DRAW PROB</p><h2>{draw:.1f}%</h2></div>
-                    <div class='stat-node'><p style='color:#D4AF37;'>VICTORY {a_name}</p><h2>{win_a:.1f}%</h2></div>
+                    <div class='stat-pill'><p>فوز {h_name}</p><h3>{win_h:.1f}%</h3></div>
+                    <div class='stat-pill'><p>تعادل</p><h3>{draw:.1f}%</h3></div>
+                    <div class='stat-pill'><p>فوز {a_name}</p><h3>{win_a:.1f}%</h3></div>
                 </div>
                 <div class='stat-grid'>
-                    <div class='stat-node'><p style='color:#ff0000;'>DANGER INDEX</p><h2>{danger_index:.1f}/20</h2></div>
-                    <div class='stat-node'><p style='color:#D4AF37;'>TOTAL GOALS</p><h2>{total_goals:.2f}</h2></div>
-                    <div class='stat-node'><p style='color:#D4AF37;'>CORNERS EXP</p><h2>{int(danger_index * 0.8)}</h2></div>
+                    <div class='stat-pill'><p>ركنيات</p><h3>{int((h_idx+a_idx)*4)}</h3></div>
+                    <div class='stat-pill'><p>بطاقات</p><h3>{int((h_def+a_def)*0.2)}</h3></div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
-
-        # رسم بياني احترافي للوحش
-        labels = [h_name, 'DRAW', a_name]
-        values = [win_h, draw, win_a]
-        fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.7, marker_colors=['#D4AF37', '#222', '#8A6D3B'])])
-        fig.update_layout(showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', margin=dict(t=0, b=0, l=0, r=0), height=400)
-        st.plotly_chart(fig, use_container_width=True)
-        
         st.balloons()
 
-st.markdown("<p style='text-align: center; color: #222; margin-top: 100px; font-family: Orbitron;'>UNSTOPPABLE BEAST SYSTEM 2026</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #333; margin-top: 40px; font-size: 0.8rem;'>ARABIC PRO | PHANTOM SYSTEM 2026</p>", unsafe_allow_html=True)
