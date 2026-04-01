@@ -92,3 +92,4 @@ if st.button("🔱 إطـلاق المحاكاة الشمولية العميقة
         st.balloons()
 
 st.markdown("<p style='text-align: center; color: #333; margin-top: 50px; font-size: 0.8rem;'>ARABIC PRO | SUPREME JOINT PROJECT v29.0</p>", unsafe_allow_html=True)
+        
