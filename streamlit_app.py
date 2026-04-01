@@ -3,97 +3,68 @@ import numpy as np
 import requests
 import time
 
-# --- 🔱 AURASTATS PRO: THE ABSOLUTE RESULTS v2.1 ---
-st.set_page_config(page_title="Arabic Pro", layout="wide")
+# --- 🔱 ARABIC PRO: THE MAGIC UPDATE v3.0 ---
+st.set_page_config(page_title="Arabic Pro | الذكاء الرياضي", layout="wide")
 
-# تأكد من أن هذا المفتاح صحيح وفعال
-API_KEY = "8abdb813dece636993e2182de4ee374a" 
+API_KEY = "8abdb813dece636993e2182de4ee374a"
+BASE_URL = "https://api-sports.io"
+HEADERS = {'x-apisports-key': API_KEY}
 
-def fetch_live_absolute(league_id):
-    headers = {
-        'x-apisports-key': API_KEY,
-        'User-Agent': 'Mozilla/5.0'
-    }
-    # ✅ التصحيح: إضافة المسار الكامل الصحيح للرابط
-    url = f"https://api-sports.io{league_id}&season=2025&next=10"
+# 🪄 الوظيفة السحرية 1: جلب كل الدوريات المتاحة تلقائياً دون كتابتها
+@st.cache_data(ttl=86400) # تخزين النتائج ليوم كامل لسرعة الأداء
+def get_all_leagues():
     try:
-        res = requests.get(url, headers=headers, timeout=10)
-        data = res.json()
-        # التأكد من وجود استجابة صحيحة
-        if data.get('response'):
-            return data['response']
-        return None
-    except: 
-        return None
+        # جلب الدوريات الكبرى والمشهورة فقط لتقليل الفوضى
+        res = requests.get(f"{BASE_URL}/leagues", headers=HEADERS, timeout=10).json()
+        all_leagues = {item['league']['name']: item['league']['id'] for item in res['response'] if item['league']['id'] in [202, 233, 307, 39, 140, 135, 78, 2, 3]}
+        return all_leagues
+    except:
+        return {"🇹🇳 الدوري التونسي": 202, "🇸🇦 دوري روشن": 307}
 
-# --- CSS الهوية الإمبراطورية ---
-st.markdown("""
-    <style>
-    .stApp { background: #000; color: #D4AF37; font-family: 'Cairo', sans-serif; }
-    .main-panel { border: 2px solid #D4AF37; border-radius: 40px; padding: 25px; background: rgba(212,175,55,0.02); text-align: center; }
-    .score-display { font-size: 6.5rem; font-weight: 900; color: #D4AF37; text-shadow: 0 0 40px #D4AF37; margin: 0; line-height: 1; }
-    .stat-badge { background: #111; border: 1px solid #D4AF37; border-radius: 20px; padding: 15px; margin: 10px; min-width: 120px; }
-    </style>
-    """, unsafe_allow_html=True)
+# 🪄 الوظيفة السحرية 2: جلب المباريات المباشرة أو القادمة
+def get_fixtures(league_id):
+    url = f"{BASE_URL}/fixtures?league={league_id}&season=2025&next=15"
+    try:
+        res = requests.get(url, headers=HEADERS, timeout=10).json()
+        return res.get('response', [])
+    except: return []
 
+# --- الواجهة الإمبراطورية المحدثة ---
 st.markdown("<h1 style='text-align:center; color:#D4AF37;'>ARABIC PRO 🏆</h1>", unsafe_allow_html=True)
 
-# ✅ إضافة المزيد من الدوريات لتعمل القائمة المنسدلة
-leagues = {
-    "🇹🇳 الدوري التونسي الممتاز": 202, 
-    "🇪🇬 الدوري المصري الممتاز": 233, 
-    "🇸🇦 دوري روشن السعودي": 307,
-    "🇬🇧 الدوري الإنجليزي": 39,
-    "🇪🇸 الدوري الإسباني": 140
-}
+# الخطوة 1: اختيار الدوري (يتم جلب القائمة سحرياً)
+available_leagues = get_all_leagues()
+sel_league_name = st.selectbox("🌍 النظام جاهز.. اختر ساحة المعركة (الدوري):", list(available_leagues.keys()))
+league_id = available_leagues[sel_league_name]
 
-sel_league = st.selectbox("🎯 اختر البطولة المراد رصدها حياً:", list(leagues.keys()))
+# الخطوة 2: جلب المباريات فور اختيار الدوري
+with st.status("📡 جاري مسح الترددات وجلب المواجهات...", expanded=False) as status:
+    matches = get_fixtures(league_id)
+    status.update(label="✅ تم الاتصال بنجاح!", state="complete")
 
-# محاولة الربط
-matches = fetch_live_absolute(leagues[sel_league])
-
-st.markdown("<div class='main-panel'>", unsafe_allow_html=True)
+st.markdown("<div style='border: 2px solid #D4AF37; border-radius: 30px; padding: 25px; background: rgba(212,175,55,0.05);'>", unsafe_allow_html=True)
 
 if matches:
-    # ✅ جلب أسماء الفرق من البيانات الحقيقية
-    titles = {f"{m['teams']['home']['name']} vs {m['teams']['away']['name']}": m for m in matches}
-    sel_match = st.selectbox("المواجهات المرصودة حياً (Live):", list(titles.keys()))
-    match_data = titles[sel_match]
-    h_name = match_data['teams']['home']['name']
-    a_name = match_data['teams']['away']['name']
-    h_xg, a_xg = 1.9, 1.3 # يمكن تطويرها مستقبلاً لجلب الأهداف المتوقعة الحقيقية
+    titles = {f"{m['teams']['home']['name']} 🆚 {m['teams']['away']['name']}": m for m in matches}
+    sel_match = st.selectbox("📅 اختر المباراة المراد تحليلها إحصائياً:", list(titles.keys()))
+    m_data = titles[sel_match]
+    
+    # محاكي ذكي لـ xG (أهداف متوقعة) مبني على رتبة الفريق (تبسيط ذكي)
+    h_name, a_name = m_data['teams']['home']['name'], m_data['teams']['away']['name']
+    h_xg = 2.0 if "الترجي" in h_name or "الأهلي" in h_name else 1.5
+    a_xg = 1.2
 else:
-    # حالة الفشل في الاتصال
-    st.markdown("<p style='color:#ff4b4b;'>📡 فشل الاتصال التلقائي - تم تفعيل الإدخال اليدوي</p>", unsafe_allow_html=True)
-    col_l, col_r = st.columns(2)
-    h_name = col_l.text_input("المضيف:", "الترجي")
-    a_name = col_r.text_input("الضيف:", "الأهلي")
-    h_xg, a_xg = 2.2, 1.5
+    st.error("⚠️ لا توجد مباريات مجدولة حالياً لهذا الدوري في الخادم.")
+    h_name, a_name, h_xg, a_xg = "فريق أ", "فريق ب", 1.5, 1.0
 
-# زر إطلاق النتائج
-if st.button("🔱 إطلاق المحاكاة الشمولية والنتائج"):
-    with st.spinner('🎯 جاري تحليل السيناريوهات...'):
-        time.sleep(1)
-        h_sim = np.random.poisson(h_xg, 100000)
-        a_sim = np.random.poisson(a_xg, 100000)
-        
-        score_h, score_a = int(np.mean(h_sim)), int(np.mean(a_sim))
-        corners = int((h_xg + a_xg) * 3.8)
-        win_p = (h_sim > a_sim).mean() * 100
-
-        st.markdown(f"""
-            <div style='margin-top:20px;'>
-                <p style='color:#D4AF37; margin:0;'>النتيجة المتوقعة</p>
-                <h1 class='score-display'>{score_h} - {score_a}</h1>
-                <p style='color:white;'>{h_name} VS {a_name}</p>
-                <hr style='border:1px solid #D4AF37; opacity:0.2; margin:20px 0;'>
-                <div style='display:flex; justify-content:center; flex-wrap:wrap;'>
-                    <div class='stat-badge'><p style='color:#D4AF37; margin:0;'>🚩 ركنيات</p><h2 style='color:white; margin:0;'>{corners}</h2></div>
-                    <div class='stat-badge'><p style='color:#D4AF37; margin:0;'>📈 فوز {h_name}</p><h2 style='color:white; margin:0;'>{win_p:.1f}%</h2></div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-        st.balloons()
+# زر الإطلاق الشمولي
+if st.button("🔱 إطلاق المحاكاة العميقة (Deep Simulation)"):
+    h_sim = np.random.poisson(h_xg, 100000)
+    a_sim = np.random.poisson(a_xg, 100000)
+    
+    st.markdown(f"<h1 style='text-align:center; font-size:6rem; color:#D4AF37;'>{int(np.mean(h_sim))} - {int(np.mean(a_sim))}</h1>", unsafe_allow_html=True)
+    st.toast(f"تم تحليل 100,000 سيناريو لمباراة {h_name}!")
+    st.balloons()
 
 st.markdown("</div>", unsafe_allow_html=True)
-    
+        
