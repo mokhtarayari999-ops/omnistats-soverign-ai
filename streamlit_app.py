@@ -8,7 +8,7 @@ from datetime import datetime
 st.set_page_config(page_title="Arabic Pro", layout="wide")
 
 # 🔑 نصيحة: إذا استمرت رسالة "الخادم لا يستجيب"، استبدل هذا المفتاح بآخر جديد
-API_KEY = "8abdb813dece636993e2182de4ee374a" 
+API_KEY = "afc8d6974db7dfcf37770c1b5791b65d" 
 HEADERS = {'x-apisports-key': API_KEY}
 
 def get_matches_smart(league_id):
@@ -86,4 +86,3 @@ if st.button("🔱 إطلاق المحاكاة والنتائج"):
         st.balloons()
 
 st.markdown("</div>", unsafe_allow_html=True)
-    
