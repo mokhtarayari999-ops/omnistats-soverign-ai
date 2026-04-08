@@ -2,120 +2,94 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-# 1. إعداد الصفحة والواجهة الاحترافية (Black & Gold)
-st.set_page_config(page_title="Arabic Pro | الإصدار الذهبي", layout="wide")
+# إعدادات الصفحة
+st.set_page_config(page_title="ARABIC PRO", layout="centered")
 
-# تنسيق CSS مخصص للوضوح العالي وإزالة الـ Cursor
+# تنسيق الواجهة بالأسود والذهبي مع نصوص واضحة جداً
 st.markdown("""
     <style>
     @import url('https://googleapis.com');
     
-    .stApp { 
-        background-color: #000000; 
-        font-family: 'Cairo', sans-serif; 
-        direction: RTL; 
-        text-align: right; 
-    }
+    .stApp { background-color: #000000; font-family: 'Cairo', sans-serif; direction: RTL; text-align: right; }
     
-    /* العناوين بالذهبي المشع */
-    h1, h2, h3 { 
-        color: #D4AF37 !important; 
-        font-weight: 900 !important;
-        text-align: center;
-    }
+    /* الذهبي للعناوين */
+    h1, h2, h3 { color: #D4AF37 !important; text-align: center; font-weight: 900 !important; }
     
-    /* النصوص والملصقات باللون الأبيض الناصع */
-    label, p, span { 
-        color: #FFFFFF !important; 
-        font-size: 1.2rem !important;
-        font-weight: bold !important;
-    }
+    /* الأبيض الواضح للنصوص */
+    label, p, span { color: #FFFFFF !important; font-size: 1.3rem !important; font-weight: 700 !important; }
     
-    /* تنسيق صناديق الإدخال الرقمي (بدون شريط تمرير) */
+    /* صناديق إدخال الأرقام - بديل الخط الأحمر */
     .stNumberInput input { 
         background-color: #1a1a1a !important; 
         color: #D4AF37 !important; 
         border: 2px solid #D4AF37 !important;
         font-size: 1.5rem !important;
-        font-weight: bold !important;
         text-align: center !important;
-        border-radius: 10px !important;
     }
-
-    /* تنسيق الأزرار */
+    
+    /* زر التحليل */
     .stButton>button { 
-        background-color: #D4AF37; 
-        color: black; 
-        font-weight: 900; 
-        font-size: 1.3rem;
-        border-radius: 15px; 
-        width: 100%;
-        height: 3.5em;
-        margin-top: 20px;
+        background-color: #D4AF37; color: black; font-weight: 900; 
+        border-radius: 10px; width: 100%; height: 3em; font-size: 1.2rem;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# العنوان الرئيسي كما في صورتك
+# العنوان كما في الصورة
 st.title("🏆 ARABIC PRO")
 st.markdown("### نظام التوقيع والتحليل اليدوي")
+st.write("---")
 
-# سجل النتائج في الذاكرة
 if "history" not in st.session_state:
     st.session_state.history = []
 
-# 2. منطقة الإدخال الرقمي المباشر
-st.write("---")
-st.markdown("### 📝 إدخال بيانات المباراة يدوياً بالارقام")
+st.markdown("## 📝 إدخال بيانات المباراة يدوياً")
 
+# تقسيم الفريقين
 col_h, col_a = st.columns(2)
 
 with col_h:
     st.markdown("### 🏠 الفريق المضيف")
-    h_name = st.text_input("اسم الفريق المضيف", "الأهلي")
-    # استبدال الـ Slider بـ Number Input (كتابة فقط)
-    h_atk = st.number_input("قوة الهجوم (المضيف)", 0, 100, 75, key="h_atk")
-    h_def = st.number_input("قوة الدفاع (المضيف)", 0, 100, 70, key="h_def")
+    home_name = st.text_input("اسم الفريق المضيف", "الأهلي")
+    # هنا التغيير الجذري: نستخدم number_input بدل slider
+    h_atk = st.number_input("قوة الهجوم (المضيف)", 0, 100, 75)
+    h_def = st.number_input("قوة الدفاع (المضيف)", 0, 100, 70)
 
 with col_a:
     st.markdown("### ✈️ الفريق الضيف")
-    a_name = st.text_input("اسم الفريق الضيف", "الزمالك")
-    # استبدال الـ Slider بـ Number Input (كتابة فقط)
-    a_atk = st.number_input("قوة الهجوم (الضيف)", 0, 100, 70, key="a_atk")
-    a_def = st.number_input("قوة الدفاع (الضيف)", 0, 100, 75, key="a_def")
+    away_name = st.text_input("اسم الفريق الضيف", "الزمالك")
+    a_atk = st.number_input("قوة الهجوم (الضيف)", 0, 100, 70)
+    a_def = st.number_input("قوة الدفاع (الضيف)", 0, 100, 75)
 
-# 3. زر التحليل والنتائج
-if st.button("✨ تشغيل التحليل الذهبي الآن"):
-    # حساب احتمالات بسيطة بناءً على الأرقام المدخلة
-    h_score = (h_atk + h_def) / 2
-    a_score = (a_atk + a_def) / 2
-    total = h_score + a_score
-    win_p = round((h_score / total) * 100, 1)
+st.write("---")
+
+if st.button("✨ تشغيل التحليل الذهبي"):
+    # حسابات التوقع
+    total_h = (h_atk + h_def) / 2
+    total_a = (a_atk + a_def) / 2
+    win_p = round((total_h / (total_h + total_a)) * 100, 1)
     
-    st.markdown("---")
-    st.subheader("📊 التوقعات النهائية")
+    st.subheader("📊 النتيجة المتوقعة")
     c1, c2, c3 = st.columns(3)
-    c1.metric(f"فوز {h_name}", f"{win_p}%")
-    c2.metric("النتيجة المتوقعة", f"{int(h_atk/30)}-{int(a_atk/35)}")
-    c3.metric(f"فوز {a_name}", f"{100-win_p}%")
+    c1.metric(f"فوز {home_name}", f"{win_p}%")
+    c2.metric("النتيجة", f"{int(h_atk/30)}-{int(a_atk/30)}")
+    c3.metric(f"فوز {away_name}", f"{100-win_p}%")
     
     # إضافة للسجل
     st.session_state.history.append({
-        "الوقت": datetime.now().strftime("%H:%M"),
-        "المباراة": f"{h_name} vs {a_name}",
-        "التوقع": f"{int(h_atk/30)}-{int(a_atk/35)}",
-        "الأفضلية": h_name if win_p > 50 else a_name
+        "المباراة": f"{home_name} vs {away_name}",
+        "التوقع": f"{int(h_atk/30)}-{int(a_atk/30)}",
+        "الوقت": datetime.now().strftime("%H:%M")
     })
 
-# 4. سجل النتائج الواضح
+# سجل النتائج
 st.write("---")
-st.subheader("📜 سجل نتائجك")
+st.subheader("📜 سجل النتائج")
 if st.session_state.history:
     st.table(pd.DataFrame(st.session_state.history))
-else:
-    st.info("لا توجد تحليلات مسجلة.")
 
-st.sidebar.markdown("<h2 style='color:#D4AF37;'>ARABIC PRO</h2>", unsafe_allow_html=True)
-if st.sidebar.button("🗑️ مسح السجل"):
+st.sidebar.title("إعدادات")
+if st.sidebar.button("مسح السجل"):
     st.session_state.history = []
     st.rerun()
+    
