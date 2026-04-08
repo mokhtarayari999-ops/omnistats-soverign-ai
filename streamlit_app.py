@@ -1,93 +1,111 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
-import random
-import time
+from datetime import datetime
 
-# 1. إعدادات الهوية البصرية الفخمة (إصدار 2026)
-st.set_page_config(page_title="Arabic Pro 2026", layout="centered")
+# 1. إعداد الصفحة والسمة الذهبية بوضوح عالٍ
+st.set_page_config(page_title="Arabic Pro | الواجهة الواضحة", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://googleapis.com');
-    .main { background-color: #000000; }
-    h1, h2, h3, p, label { color: #D4AF37 !important; text-align: right; font-family: 'Cairo', sans-serif; }
-    .stNumberInput input { background-color: #1a1a1a; color: white; border: 1px solid #D4AF37; text-align: center; }
-    .stTextInput input { background-color: #1a1a1a; color: white; border: 1px solid #D4AF37; text-align: right; }
-    .stButton>button { 
-        width: 100%; border-radius: 12px; height: 3.5em;
-        background: linear-gradient(45deg, #D4AF37, #8A6E2F); 
-        color: black; font-weight: bold; border: none; font-size: 18px;
-        box-shadow: 0px 4px 15px rgba(212, 175, 55, 0.3);
+    
+    /* الخلفية سوداء فحمية لزيادة تباين الألوان */
+    .stApp { 
+        background-color: #000000; 
+        font-family: 'Cairo', sans-serif; 
+        direction: RTL; 
+        text-align: right; 
     }
-    .stTable { border: 1px solid #D4AF37; border-radius: 10px; }
+    
+    /* جعل العناوين باللون الذهبي المشع */
+    h1, h2, h3 { 
+        color: #FFD700 !important; 
+        font-weight: 800 !important;
+        text-shadow: 2px 2px 4px #000000;
+    }
+    
+    /* جعل النصوص العادية باللون الأبيض الناصع والخط سميك */
+    p, span, label, .stMarkdown { 
+        color: #FFFFFF !important; 
+        font-weight: 600 !important;
+        font-size: 1.1rem !important;
+    }
+    
+    /* تحسين وضوح صناديق الإدخال */
+    input { 
+        background-color: #1a1a1a !important; 
+        color: #FFD700 !important; 
+        border: 2px solid #FFD700 !important;
+        font-size: 1.2rem !important;
+    }
+
+    /* تنسيق الأرقام والنتائج لتكون واضحة جداً */
+    [data-testid="stMetricValue"] { 
+        color: #FFD700 !important; 
+        font-size: 2.5rem !important; 
+        font-weight: bold !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# تهيئة سجل البيانات في الذاكرة
-if 'history_log' not in st.session_state:
-    st.session_state.history_log = []
+st.title("🏆 ARABIC PRO: التحليل الرياضي الشامل")
 
-st.title("🔱 نظام المحاكاة الشمولية العظمى")
-st.subheader("إصدار 2026 - مشروع Arabic Pro")
+# 2. سجل النتائج
+if "match_history" not in st.session_state:
+    st.session_state.match_history = []
 
-# 2. تنظيم مدخلات الفريقين في أعمدة
-col_home, col_away = st.columns(2)
+# 3. إدخال البيانات يدوياً (قوة الهجوم والدفاع)
+st.subheader("📊 أدخل بيانات المباراة بدقة")
+col_h, col_a = st.columns(2)
 
-with col_home:
-    st.markdown("### 🏟️ الفريق المضيف")
-    h_name = st.text_input("اسم الفريق", value="الترجي", key="h_n")
-    h_att = st.number_input("الهجوم (1-10)", 0.0, 10.0, 8.2, key="h_a")
-    h_def = st.number_input("الدفاع (1-10)", 0.0, 10.0, 8.0, key="h_d")
+with col_h:
+    st.markdown("### 🏠 الفريق المضيف")
+    h_name = st.text_input("اسم فريق الأرض", "النصر")
+    h_atk = st.slider("🚀 قوة الهجوم يدوياً", 0, 100, 80)
+    h_def = st.slider("🛡️ قوة الدفاع يدوياً", 0, 100, 70)
 
-with col_away:
+with col_a:
     st.markdown("### ✈️ الفريق الضيف")
-    a_name = st.text_input("اسم الفريق ", value="الأهلي", key="a_n")
-    a_att = st.number_input("الهجوم (1-10) ", 0.0, 10.0, 7.5, key="a_a")
-    a_def = st.number_input("الدفاع (1-10) ", 0.0, 10.0, 8.5, key="a_d")
+    a_name = st.text_input("اسم فريق الخصم", "الهلال")
+    a_atk = st.slider("🚀 قوة الهجوم يدوياً ", 0, 100, 85)
+    a_def = st.slider("🛡️ قوة الدفاع يدوياً ", 0, 100, 75)
 
 st.divider()
 
-# 3. محرك المحاكاة والتحليل البصري
-if st.button("إطلاق المحاكاة العظمى 🚀"):
-    with st.spinner('جاري تحليل التكتيكات...'):
-        time.sleep(1.5)
-        # معادلة النتائج
-        h_score = max(0, int((h_att - a_def/2) * random.uniform(0.7, 1.3)))
-        a_score = max(0, int((a_att - h_def/2) * random.uniform(0.7, 1.3)))
-        res_str = f"{h_score} - {a_score}"
-        
-        # حفظ في السجل
-        st.session_state.history_log.insert(0, {
-            "المضيف": h_name, "النتيجة": res_str, "الضيف": a_name
-        })
-
-    # عرض النتيجة الكبيرة
-    st.markdown(f"<h1 style='text-align: center; font-size: 60px; color: white;'>{h_name} {res_str} {a_name}</h1>", unsafe_allow_html=True)
-    st.balloons()
-
-    # --- رادار القوى المتقابلة ---
-    st.markdown("### 📊 رادار القوى المتقابلة")
-    fig = go.Figure()
-    fig.add_trace(go.Scatterpolar(r=[h_att, h_def, (h_att+h_def)/2], theta=['الهجوم','الدفاع','التوازن'], fill='toself', name=h_name, line_color='#D4AF37'))
-    fig.add_trace(go.Scatterpolar(r=[a_att, a_def, (a_att+a_def)/2], theta=['الهجوم','الدفاع','التوازن'], fill='toself', name=a_name, line_color='#FFFFFF'))
+# 4. زر التحليل وتوليد النتيجة
+if st.button("🔥 ابدأ التحليل الذهبي الآن"):
+    # حسابات بسيطة للتوقع
+    h_chance = (h_atk + h_def) / 2 + 5 # ميزة الأرض
+    a_chance = (a_atk + a_def) / 2
     
-    fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 10], color="#D4AF37")),
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color="#D4AF37", size=14)
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    total = h_chance + a_chance
+    win_p = round((h_chance / total) * 100, 1)
+    loss_p = round(100 - win_p, 1)
+    
+    # عرض النتائج بخط كبير وواضح
+    c1, c2, c3 = st.columns(3)
+    c1.metric(f"فوز {h_name}", f"{win_p}%")
+    c2.metric("النتيجة المتوقعة", f"{int(h_atk/30)}-{int(a_atk/30)}")
+    c3.metric(f"فوز {a_name}", f"{loss_p}%")
+    
+    # حفظ في السجل
+    st.session_state.match_history.append({
+        "التوقيت": datetime.now().strftime("%H:%M"),
+        "المباراة": f"{h_name} vs {a_name}",
+        "التوقع": f"{int(h_atk/30)}-{int(a_atk/30)}",
+        "الأقرب للفوز": h_name if win_p > loss_p else a_name
+    })
 
-st.divider()
-
-# 4. سجل العمليات التاريخي
-st.subheader("📋 سجل العمليات التاريخي")
-if st.session_state.history_log:
-    st.table(pd.DataFrame(st.session_state.history_log))
-    if st.button("🗑️ مسح السجل"):
-        st.session_state.history_log = []
-        st.rerun()
+# 5. سجل النتائج الواضح
+st.write("---")
+st.subheader("📜 سجل نتائجك السابقة")
+if st.session_state.match_history:
+    df = pd.DataFrame(st.session_state.match_history)
+    st.table(df) # جدول أبيض واضح على خلفية سوداء
 else:
-    st.info("قم بإجراء أول محاكاة لبدء تسجيل البيانات.")
-    
+    st.info("لا توجد تحليلات سابقة بعد.")
+
+st.sidebar.markdown("<h2 style='color:#FFD700;'>ARABIC PRO AI</h2>", unsafe_allow_html=True)
+if st.sidebar.button("🗑️ مسح السجل بالكامل"):
+    st.session_state.match_history = []
+    st.rerun()
