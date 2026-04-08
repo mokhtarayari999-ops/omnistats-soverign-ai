@@ -3,13 +3,12 @@ import pandas as pd
 from datetime import datetime
 
 # 1. إعداد الصفحة والسمة الذهبية بوضوح عالٍ
-st.set_page_config(page_title="Arabic Pro | الواجهة الواضحة", layout="wide")
+st.set_page_config(page_title="Arabic Pro | إدخال رقمي دقيق", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://googleapis.com');
     
-    /* الخلفية سوداء فحمية لزيادة تباين الألوان */
     .stApp { 
         background-color: #000000; 
         font-family: 'Cairo', sans-serif; 
@@ -17,95 +16,84 @@ st.markdown("""
         text-align: right; 
     }
     
-    /* جعل العناوين باللون الذهبي المشع */
     h1, h2, h3 { 
         color: #FFD700 !important; 
-        font-weight: 800 !important;
         text-shadow: 2px 2px 4px #000000;
     }
     
-    /* جعل النصوص العادية باللون الأبيض الناصع والخط سميك */
-    p, span, label, .stMarkdown { 
+    p, span, label { 
         color: #FFFFFF !important; 
         font-weight: 600 !important;
         font-size: 1.1rem !important;
     }
     
-    /* تحسين وضوح صناديق الإدخال */
-    input { 
+    /* تنسيق صناديق إدخال الأرقام لتكون واضحة بالذهبي */
+    .stNumberInput input { 
         background-color: #1a1a1a !important; 
         color: #FFD700 !important; 
         border: 2px solid #FFD700 !important;
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important;
+        text-align: center !important;
     }
 
-    /* تنسيق الأرقام والنتائج لتكون واضحة جداً */
-    [data-testid="stMetricValue"] { 
-        color: #FFD700 !important; 
-        font-size: 2.5rem !important; 
-        font-weight: bold !important;
+    .stButton>button { 
+        background-color: #FFD700; color: black; font-weight: bold; 
+        border-radius: 10px; width: 100%; height: 3.5em; font-size: 1.2rem;
     }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🏆 ARABIC PRO: التحليل الرياضي الشامل")
+st.title("🏆 ARABIC PRO: التحليل الرقمي الدقيق")
 
-# 2. سجل النتائج
 if "match_history" not in st.session_state:
     st.session_state.match_history = []
 
-# 3. إدخال البيانات يدوياً (قوة الهجوم والدفاع)
-st.subheader("📊 أدخل بيانات المباراة بدقة")
+# 2. منطقة الإدخال بالارقام بدلاً من الشريط
+st.subheader("🔢 أدخل القيم الرقمية للمباراة")
 col_h, col_a = st.columns(2)
 
 with col_h:
     st.markdown("### 🏠 الفريق المضيف")
-    h_name = st.text_input("اسم فريق الأرض", "النصر")
-    h_atk = st.slider("🚀 قوة الهجوم يدوياً", 0, 100, 80)
-    h_def = st.slider("🛡️ قوة الدفاع يدوياً", 0, 100, 70)
+    h_name = st.text_input("اسم الفريق المضيف", "الأهلي")
+    # استبدال Slider بـ Number Input
+    h_atk = st.number_input("🚀 قوة الهجوم (0-100)", min_value=0, max_value=100, value=75, step=1)
+    h_def = st.number_input("🛡️ قوة الدفاع (0-100)", min_value=0, max_value=100, value=70, step=1)
 
 with col_a:
     st.markdown("### ✈️ الفريق الضيف")
-    a_name = st.text_input("اسم فريق الخصم", "الهلال")
-    a_atk = st.slider("🚀 قوة الهجوم يدوياً ", 0, 100, 85)
-    a_def = st.slider("🛡️ قوة الدفاع يدوياً ", 0, 100, 75)
+    a_name = st.text_input("اسم الفريق الضيف", "الزمالك")
+    # استبدال Slider بـ Number Input
+    a_atk = st.number_input("🚀 قوة الهجوم (0-100) ", min_value=0, max_value=100, value=70, step=1)
+    a_def = st.number_input("🛡️ قوة الدفاع (0-100) ", min_value=0, max_value=100, value=75, step=1)
 
-st.divider()
+st.write("---")
 
-# 4. زر التحليل وتوليد النتيجة
-if st.button("🔥 ابدأ التحليل الذهبي الآن"):
-    # حسابات بسيطة للتوقع
-    h_chance = (h_atk + h_def) / 2 + 5 # ميزة الأرض
-    a_chance = (a_atk + a_def) / 2
+# 3. الزر ومنطق الحساب
+if st.button("🔥 تنفيذ التحليل الرقمي"):
+    h_total = (h_atk + h_def) / 2 + 5
+    a_total = (a_atk + a_def) / 2
+    win_p = round((h_total / (h_total + a_total)) * 100, 1)
     
-    total = h_chance + a_chance
-    win_p = round((h_chance / total) * 100, 1)
-    loss_p = round(100 - win_p, 1)
-    
-    # عرض النتائج بخط كبير وواضح
+    st.markdown("---")
     c1, c2, c3 = st.columns(3)
     c1.metric(f"فوز {h_name}", f"{win_p}%")
     c2.metric("النتيجة المتوقعة", f"{int(h_atk/30)}-{int(a_atk/30)}")
-    c3.metric(f"فوز {a_name}", f"{loss_p}%")
+    c3.metric(f"فوز {a_name}", f"{100-win_p}%")
     
-    # حفظ في السجل
     st.session_state.match_history.append({
-        "التوقيت": datetime.now().strftime("%H:%M"),
+        "التاريخ": datetime.now().strftime("%H:%M"),
         "المباراة": f"{h_name} vs {a_name}",
         "التوقع": f"{int(h_atk/30)}-{int(a_atk/30)}",
-        "الأقرب للفوز": h_name if win_p > loss_p else a_name
+        "الأفضلية": h_name if win_p > 50 else a_name
     })
 
-# 5. سجل النتائج الواضح
-st.write("---")
-st.subheader("📜 سجل نتائجك السابقة")
+# 4. سجل النتائج
+st.subheader("📜 سجل التحليلات")
 if st.session_state.match_history:
-    df = pd.DataFrame(st.session_state.match_history)
-    st.table(df) # جدول أبيض واضح على خلفية سوداء
-else:
-    st.info("لا توجد تحليلات سابقة بعد.")
+    st.table(pd.DataFrame(st.session_state.match_history))
 
-st.sidebar.markdown("<h2 style='color:#FFD700;'>ARABIC PRO AI</h2>", unsafe_allow_html=True)
-if st.sidebar.button("🗑️ مسح السجل بالكامل"):
+st.sidebar.markdown("<h2 style='color:#FFD700;'>ARABIC PRO</h2>", unsafe_allow_html=True)
+if st.sidebar.button("🗑️ مسح السجل"):
     st.session_state.match_history = []
     st.rerun()
+    
