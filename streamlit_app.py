@@ -98,4 +98,3 @@ st.sidebar.markdown("<h2 style='color:#FFD700;'>ARABIC PRO</h2>", unsafe_allow_h
 if st.sidebar.button("🗑️ مسح السجل"):
     st.session_state.history = []
     st.rerun()
-                
