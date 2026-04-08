@@ -110,4 +110,4 @@ if st.session_state.history_log:
         st.rerun()
 else:
     st.info("السجل فارغ حالياً.. ابدأ أول محاكاة.")
-    
+        
